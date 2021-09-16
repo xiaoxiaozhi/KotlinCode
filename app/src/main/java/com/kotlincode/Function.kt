@@ -16,6 +16,11 @@ fun main() {
     createPerson("jack", height = 190, weight = 90)//对所有其它参数使用命名参数的时候，可以忽略age
     println("最大值:${max(1, 8, 3, 4)}")
     greetMany("hello", "tom", "jerry")
+    val (first, second, third) = getFullName() //解构，将对象中的值提取到变量上面
+    println("$first,$second,$third")
+    val (first1, _, third1) = getFullName()//解构，忽略中间的值
+    val (_, _, third2) = getFullName()//解构，只要最后值
+    val (_, second3) = getFullName()//解构，只要中间的值
 }
 
 //1. 创建一个最小函数: fun 函数名 参数列表(可以为空) ，如果函数体只是一个表达式，
@@ -59,4 +64,9 @@ fun max(vararg numbers: Int): Int {
 //7.1 函数接收两个参数其中易格斯可变数量参数, 可变参数最好在最后一个，否则 其它参数就要使用命名参数
 fun greetMany(msg: String, vararg names: String) = println("$msg  ${names.joinToString("、")}")
 
+//8.spread运算符 *  ,max函数接收可变数量的参数，但有时候需要传递一个数组或者列表，vararg并不能接收数组或者列表
+//这时候需要使用spread 把数组和列表拆成离散值， 使用方式：max(*intArrayOf(1,2,3)) ,在参数前面加 *
+
+//9.解构 将值从现有对象提取到变量中。结构化或构造是从变量中创建对象而解构正好相反
+fun getFullName() = Triple("john", "Quincy", "Adams")
 
