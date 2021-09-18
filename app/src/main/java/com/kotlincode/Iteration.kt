@@ -13,6 +13,7 @@ fun main() {
     ergodic()
     println("")
     whenFunction()
+    println(systemInfo())
 }
 
 //1.范围类
@@ -77,5 +78,26 @@ fun whatToDo(dayOfWeek: Any) = when (dayOfWeek) {
     "Friday" -> "Party"
     is String -> "What ?"
     else -> "no clue"
+}
+
+//3.3 when 用作语句(有无返回的区别)此时kotlin 并不关心是否提供了else分支
+fun whatToDo1(dayOfWeek: Any) {
+    when (dayOfWeek) {
+        "Saturday", "Sunday" -> "Relax"
+        in listOf<String>("Monday", "Tuesday", "Wednesday", "Thursday") -> "work hard"
+        in 1..4 -> "work hard"
+        "Friday" -> "Party"
+        is String -> "What ?"
+//        else -> "no clue"
+    }
+}
+
+//3.4 when变量和作用域：把用于匹配的变量限制在when 作用域内部
+fun systemInfo(): String {
+    return when (val cores = Runtime.getRuntime().availableProcessors()) {
+        1 -> "one core,packing this one to the museum"
+        in 2..16 -> "you have ${cores} cores "
+        else -> "${cores} cores ,I want your machine"
+    }
 }
 
