@@ -59,8 +59,8 @@ fun arrays() {
     numbers[0] = 2     //修改值
     numbers.size       //数组的大小
     numbers.average()  //数组平均值,数值类型才有
-    1 in numbers       //判难断1是否在数组中
-    numbers.contains(1)//判难断1是否在数组中
+    1 in numbers       //判断1是否在数组中
+    numbers.contains(1)//判断1是否在数组中
 }
 
 //3.列表
@@ -117,7 +117,7 @@ fun maps() {
     println("baidu 是否存在 ${"baidu" in values}") //in 判断键值是否存在
     values + ("tencent" to "www.tencent.com")     // 增加一个键值对 返回新的map
     values - "baidu"                              // 删去一个键值对
-    //5.5 取键值
+    //5.5 根据键取值
     values.get("baidu")
     values["baidu"]
     values.getOrDefault("apple", "default") //如果没有则返回默认值

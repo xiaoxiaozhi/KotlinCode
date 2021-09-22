@@ -17,7 +17,7 @@ fun main() {
     //1. 字符串
     println("$factor")//①字符串模板--->${变量、表达式、函数}也可以省略{} 例如 $变量
     println("转义字符串\$,\"are you ok\"")//②转义字符串使用的越多，越混乱；
-    println("""\n fox say"are you ok"  """);//③原始字符串三个" 内部也可以使用字符串模板${}，但是没有转义字符
+    println("""\n fox say: are you ok"  """);//③原始字符串三个" 内部也可以使用字符串模板${}，但是没有转义字符
     println(
         """
     Tell me and I forget.

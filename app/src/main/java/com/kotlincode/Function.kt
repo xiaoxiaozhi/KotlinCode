@@ -18,9 +18,10 @@ fun main() {
     greetMany("hello", "tom", "jerry")
     val (first, second, third) = getFullName() //解构，将对象中的值提取到变量上面
     println("$first,$second,$third")
-    val (first1, _, third1) = getFullName()//解构，忽略中间的值
-    val (_, _, third2) = getFullName()//解构，只要最后值
+    val (first1, _) = getFullName()//解构，只要第一个
     val (_, second3) = getFullName()//解构，只要中间的值
+    val (_, _, third2) = getFullName()//解构，只要最后值
+    val (first2, _, third1) = getFullName()//解构，只要第一和第三
 }
 
 //1. 创建一个最小函数: fun 函数名 参数列表(可以为空) ，如果函数体只是一个表达式，
@@ -61,7 +62,7 @@ fun max(vararg numbers: Int): Int {
     return large
 }
 
-//7.1 函数接收两个参数其中易格斯可变数量参数, 可变参数最好在最后一个，否则 其它参数就要使用命名参数
+//7.1 函数接收两个参数其中一个是可变数量参数, 可变参数最好在最后一个，否则 其它参数就要使用命名参数
 fun greetMany(msg: String, vararg names: String) = println("$msg  ${names.joinToString("、")}")
 
 //8.spread运算符 *  ,max函数接收可变数量的参数，但有时候需要传递一个数组或者列表，vararg并不能接收数组或者列表

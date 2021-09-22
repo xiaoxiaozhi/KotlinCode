@@ -51,9 +51,9 @@ fun ergodic() {
     //2.1 创建列表
     val list = listOf<Int>(1, 2, 3)
     println(list.javaClass)
-    for (value in list.indices) print("index = $value , value = ${list.get(value)} ")// 使用indices 获取 列表的索引,list.get(value) 获取值
+    for (value in list.indices) print("index = $value , value = ${list[value]} ")// 使用indices 获取 列表的索引,list.get(value) 获取值
     //2.2 通过解构 得到值和索引(数组和列表都可以)
-    for ((index, value) in list.withIndex()) print("index = $index , value = ${value} ")// 使用 withIndex 获取解构
+    for ((index, value) in list.withIndex()) print("index = $index , value = $value ")// 使用 withIndex 获取解构
 }
 
 // 3. when表达式 代替 if-else
@@ -96,8 +96,8 @@ fun whatToDo1(dayOfWeek: Any) {
 fun systemInfo(): String {
     return when (val cores = Runtime.getRuntime().availableProcessors()) {
         1 -> "one core,packing this one to the museum"
-        in 2..16 -> "you have ${cores} cores "
-        else -> "${cores} cores ,I want your machine"
+        in 2..16 -> "you have $cores cores "
+        else -> "$cores cores ,I want your machine"
     }
 }
 
