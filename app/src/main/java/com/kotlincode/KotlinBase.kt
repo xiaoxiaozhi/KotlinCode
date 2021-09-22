@@ -14,6 +14,8 @@ fun main() {
     fun doubleInt(arg: Int): Int = arg * factor;
     factor = 1;
     print(doubleInt(2))
+    //1. 相等性检查
+    equality()
     //1. 字符串
     println("$factor")//①字符串模板--->${变量、表达式、函数}也可以省略{} 例如 $变量
     println("转义字符串\$,\"are you ok\"")//②转义字符串使用的越多，越混乱；
@@ -40,6 +42,15 @@ fun main() {
     //a = b = c//这种情况会报错 赋值不是表达式 相当于 a= (b=c) 由于b=c不是表达式 ，所以不能给a赋值
 }
 
+//1. 相等性检查 ==和===
+fun equality() {
+    //1.1 == 值相等
+    println("hi" == "hi")//  true 类似java 中的equals，但是kotlin的==更好能够处理null，kotlin的==运算符实际是equals方法的映射，点进去发现是equals的源码
+    println("hi" == null)//  false
+    //1.2 === 引用比较 两个引用是否相等
+
+}
+
 fun tryExpr(bloweUp: Boolean): Int {
     return try {
         if (bloweUp) {
@@ -52,7 +63,7 @@ fun tryExpr(bloweUp: Boolean): Int {
     } finally {
         5
     }
-
 }
+
 
 
