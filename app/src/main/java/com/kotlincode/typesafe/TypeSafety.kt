@@ -1,4 +1,4 @@
-package com.kotlincode
+package com.kotlincode.typesafe
 
 import java.lang.RuntimeException
 import java.lang.StringBuilder
