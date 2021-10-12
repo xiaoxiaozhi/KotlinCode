@@ -1,5 +1,6 @@
 package com.kotlincode
 
+import com.kotlincode.oop.Card
 import java.lang.RuntimeException
 
 /**
@@ -22,11 +23,20 @@ class Car1(val yearOfMake: Int)// 为Car1类创建了一个构造函数，构造
 //1.2.1 定义一个类，拥有读写属性 var
 class Car2(var color: String)//
 
+//1.2.2 定义一个类，只是参数
+class Car21(price: Int) { //price没有被val和var修饰，只相当于构造函数的参数，没有在类中创建属性，所以方法中无法调用
+    val i: Int = price
+    fun sd() {
+        //price  //方法中无法调用price ，因为它是构造函数的参数
+    }
+}
+
 //1.3 创建实例
 fun generateCar() {
     val car = Car1(2019)
 //    car.yearOfMake = 2021
     val car2 = Car2("red")
+
     car2.color = "white"
     val car3 = Car3(2077, "")
 //    car3.color = ""
@@ -39,7 +49,7 @@ fun generateCar() {
 
 //1.4 控制属性修改 getter 和 setter
 class Car3(val yearOfMake: Int, var theColor: String) {
-    val fullLevel = 100 // get和set是可选的
+    val fullLevel = 100 // val 属性只有get方法 ，var拥有get和set方法
     var color = theColor
         set(value) {
             if (value.isBlank()) {
@@ -70,6 +80,7 @@ class Car5(private val theColor: String) {
             field = value
         }
 }
+
 
 //1.7 初始化代码 init{}
 class Car6(private val yearOfMake: Int, private var theColor: String) {
@@ -134,5 +145,3 @@ inline class SSN(val id: String) //1. 内联类必须含有唯一的一个属性
 fun receiveSSN(ssn: SSN) {//kotlin检测到 方法接收到的参数是内联类，会直接释内连类的内容，直接把String传递给函数
     println(ssn.id)
 }
-
-

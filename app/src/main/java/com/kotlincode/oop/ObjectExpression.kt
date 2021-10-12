@@ -4,12 +4,13 @@ package com.kotlincode.oop
  * 面向对象
  * 1.对象表达式
  */
-fun main(){
+fun main() {
     println("-----对象表达式-----")
     //1. 对象表达式
     drawCircle()
     println(Unit.numberOfProcess())
 }
+
 //1. 对象表达式创建匿名内部类
 fun drawCircle() {
     val circle = object {
@@ -44,7 +45,7 @@ fun createRunnable2(): Runnable {
     }
 }
 
-//1.4 单例模式，对象表达式 创建单例 ，Unit 并不是 类二是一个实例，不能通过Unit创建其它实例
+//1.4 单例模式，对象表达式 创建单例 ，Unit 并不是 类而是一个实例，不能通过Unit创建其它实例
 object Unit {
     const val radiusInKM = 59000
     fun numberOfProcess() = Runtime.getRuntime().availableProcessors()
