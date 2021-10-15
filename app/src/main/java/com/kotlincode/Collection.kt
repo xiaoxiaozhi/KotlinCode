@@ -100,7 +100,6 @@ fun sets() {
 }
 
 //5. Map 映射
-@RequiresApi(Build.VERSION_CODES.N)
 fun maps() {
     //5.1 同列表一样Map也提供了可变和不可变接口
     val values = mapOf<String, String>("baidu" to "www.baidu.com", "sine" to "www.sine.com")
