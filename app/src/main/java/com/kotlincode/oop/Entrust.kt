@@ -81,11 +81,12 @@ fun main() {
     //6. Observable委托  监视对象中局部变量或属性的变化
     println("---Observable委托---")
     var count by observable(0) { property, oldValue, newValue -> println("property:${property.name} oldValue:$oldValue newValue:$newValue") }
-//    count += 1
-//    count--
-    //7. vetoable委托 lambda表达式返回一个boolean类型，通过表达式才能被赋值
-    var num by vetoable(0) { property, oldValue, newValue -> oldValue > newValue }
-    num++
+//    count++  //报错  未知原因
+    count = 2
+//    //7. vetoable委托 lambda表达式返回一个boolean类型，通过表达式才能被赋值
+    var num by vetoable(1) { _, oldValue, newValue -> oldValue < newValue }
+    num = 0
+    println("num = $num")
 
 
 }
