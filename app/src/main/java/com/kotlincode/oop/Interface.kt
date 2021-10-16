@@ -76,7 +76,9 @@ class TV1 {
         get() = TVRemote()
 
     inner class TVRemote() : Remote {
-        override fun up() {//2.1 内部类可以直接访问外部类的成员包括private属性
+        //2.1 在Kotlin中，一个类可以嵌套在另一个类中。
+        // 与Java不同，Kotlin嵌套类不能访问嵌套外部类的私有成员。但是如果用inner关键字标记嵌套类，那么它们就会变成内部类，并且限制也消失了。
+        override fun up() {
             volume++
         }
 
