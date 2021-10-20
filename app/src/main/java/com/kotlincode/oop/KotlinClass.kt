@@ -1,6 +1,5 @@
 package com.kotlincode
 
-import com.kotlincode.oop.Card
 import java.lang.RuntimeException
 
 /**

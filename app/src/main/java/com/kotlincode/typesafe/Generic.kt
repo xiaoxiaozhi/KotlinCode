@@ -65,11 +65,11 @@ fun copyFromTo(from: Array<out Fruit>, to: Array<Fruit>) {
     println("to value is ${to.size}")
 }
 
-//2. 逆变 使方法参数接收类型的父类
+//3. 逆变 使方法参数接收类型的父类
 fun copyFromTo1(from: Array<out Fruit>, to: Array<in Fruit>) {
     for (i in from.indices) {
         to[i] = from[i]
-        val fruit = to[i]
+        val fruit = to[i]//3. 使用逆变的参数即可以读也可以写
     }
 }
 
