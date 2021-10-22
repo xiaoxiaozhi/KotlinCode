@@ -19,7 +19,7 @@ fun main() {
         println(it)
     }
     //3.1 实例方法引用1
-    walk1To(5, ::println)// ::+函数名=lambda
+    walk1To(5, ::println)// ::+函数名=lambda {action:Int->println(action)} 转变为(::println)
     //3.2 实例方法引用2
     walk1To(5, System.out::println)
     //4. 函数返回函数

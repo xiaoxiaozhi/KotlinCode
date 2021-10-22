@@ -6,8 +6,9 @@ import kotlin.math.pow
 /**
  * 扩展类
  * 1. 注入方法
- * - 从外部将方法添加到这些类中
- * - 当扩展函数和同名的实例方法之间发生冲突时，如果导入了扩展函数的包，扩展函数总是获胜。
+ * - 从外部将方法添加到这些类中，大多数情况下是比继承更好的选择
+ * - 本文件的扩展函数会覆盖从其他文件导入的相同名称和签名扩展函数
+ * - 类成员函数和扩展函数拥有相同的签名，成员函数优先
  * - 扩展函数不属于  类.函数名  前面的类，它是顶级函数，属于package的类和方法都可以调用
  * 2. 注入属性
  * - 扩展属性不是类内部的一部分，所以它不能使用幕后字段
@@ -33,7 +34,7 @@ fun main() {
 }
 
 //1. 自定义类扩展函数
-fun Circle.contains(point: Point) =
+fun Circle.contains(point: Point) =//这个类(Circle)称为 接收者类型（receiver type），调用这个扩展的对象称为 接收者对象。
     (point.x - cx).toDouble().pow(2) + (point.y - yx).toDouble().pow(2) < radius.toDouble().pow(2)
 
 //2. 扩展属性
