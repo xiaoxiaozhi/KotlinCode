@@ -16,7 +16,7 @@ fun main() {
     //1.1 带有接收者的函数类型
     val printIt: String.(Int) -> Unit = { println("$this length $this.length") }
     printIt("hello", 6)//当调用一个带有接收方的lambda时，需要传递一个额外的参数
-    "hello".printIt(6) //另一种调用方式，实际上kotlin就是把它当做扩展函数，语法String.(Int)表示lambda将在String实例的上下文中执行。
+    "hello".printIt(6) //另一种调用方式，实际上kotlin就是把它当做扩展函数，函数名printIt。语法String.(Int)表示lambda将在String实例的上下文中执行。
 
     val result = "RESULT"
     //2. lambda被当做参数传入 没有this

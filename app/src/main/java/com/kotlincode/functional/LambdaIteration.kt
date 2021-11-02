@@ -18,7 +18,7 @@ fun main() {
     println("")// 元素超过千级，内部迭代会损失些性能
     (1..10).filter { it % 2 == 0 }.forEach(::print)//内部迭代
     //2. reduce()
-    println("")
+    println("\n---reduce---")
     val result = people.filter { it.age > 20 }.map { it.firstName }.reduce { acc, s -> "$acc,$s" }
     println(result)// reduce 传入两个参数 acc是前面参数的结果，s是下一个参数
     //2.1 sum
