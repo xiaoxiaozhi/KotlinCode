@@ -1,7 +1,6 @@
 package com.kotlincode.functional
 
 
-
 /**
  * 用lambda表达式实现内部迭代
  * Kotlin标准库为集合添加了许多扩展函数。
@@ -51,6 +50,7 @@ fun main() {
         people.asSequence().filter(::isAdult).map(::fetchFirstName).first()
     )//使用asSequence()列表转换成序列
     //序列执行中间操作时会返回一个序列，当调用最后一个终端方法的时候，延迟的filter()和map()操作将被调用。
+
 
 
 }

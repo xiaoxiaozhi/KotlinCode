@@ -116,8 +116,9 @@ class CSharpProgrammer : Worker {
     }
 }
 
-//1. 委托给类    接口 by 实例
-class Manager : Worker by JavaProgrammer()//无法访问委托实例，委托给参数很好的解决了这个问题
+//1. 委托给类    要实现的接口 by 实例
+class Manager :
+    Worker by JavaProgrammer()//Manager不用自己去实现Worker接口，委托给JavaProgrammer实现。无法访问委托实例，委托给参数很好的解决了这个问题
 
 //2. 委托给参数
 class Manager1(val staff: Worker) : Worker by staff {

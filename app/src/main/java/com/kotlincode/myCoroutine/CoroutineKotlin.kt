@@ -1,6 +1,5 @@
-package com.kotlincode.synergeticProcess
+package com.kotlincode.myCoroutine
 
-import kotlinx.coroutines.delay
 import kotlin.coroutines.*
 
 /**

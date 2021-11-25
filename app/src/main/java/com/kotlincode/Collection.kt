@@ -1,8 +1,5 @@
 package com.kotlincode
 
-import android.os.Build
-import androidx.annotation.RequiresApi
-
 /**
  * 集合
  * Pair   两个值的元组 元组中的值可以是不同类型
@@ -11,6 +8,7 @@ import androidx.annotation.RequiresApi
  * List   有序集合
  * Set    无序集合
  * Map    映射
+ * sequnce
  */
 fun main() {
     println("-----二值元组-----")
@@ -23,6 +21,8 @@ fun main() {
     sets()
     println("-----Map-----")
     maps()
+    println("-----Sequences-----")
+    generateSequences()
 }
 
 /**
@@ -121,3 +121,17 @@ fun maps() {
     values["baidu"]
     values.getOrDefault("apple", "default") //如果没有则返回默认值
 }
+
+//6. 序列
+fun generateSequences() {
+    sequenceOf("1", "2", "3")//6.1 从一堆元素构建序列
+    listOf<String>("1", "2", "3", "4").asSequence()//6.2 从可迭代对象构建序列
+    generateSequence(1) { if (it < 8) it + 2 else null }//6.3 从generateSequence函数构建对象，参数是第1个值，知道返回null 序列结束
+    sequence {//6.4 从代码块构建序列
+        yield(1)// 单个元素插入到序列
+        yieldAll(listOf(3, 5))
+        yieldAll(generateSequence(7) { it + 2 })
+    }
+}// 序列中的数据并不像其它集合一次性返回，二是计算一个，返回一个。
+// 序列的计算过程依赖主线程，因此会阻塞主线程
+
