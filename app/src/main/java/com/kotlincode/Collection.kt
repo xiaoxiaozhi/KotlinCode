@@ -1,5 +1,6 @@
 package com.kotlincode
 
+
 /**
  * 集合
  * Pair   两个值的元组 元组中的值可以是不同类型
@@ -132,6 +133,23 @@ fun generateSequences() {
         yieldAll(listOf(3, 5))
         yieldAll(generateSequence(7) { it + 2 })
     }
+    //序列迭代，sequence执行hasNext，才会触发sequence内部逻辑，直到第一个yield为止
+    val sequence = sequence {
+        log("A1")
+        log("A1")
+        yield(1)
+        log("A2")
+        log("B1")
+        yield(2)
+        log("B2")
+        log("Done")
+    }
+    log("before sequence")
+    for (item in sequence) {
+        log("Got $item")
+        break
+    }
 }// 序列中的数据并不像其它集合一次性返回，二是计算一个，返回一个。
 // 序列的计算过程依赖主线程，因此会阻塞主线程
 
+private fun log(message: String) = println("[${Thread.currentThread().name}] $message")

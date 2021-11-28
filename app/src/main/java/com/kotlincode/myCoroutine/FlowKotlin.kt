@@ -151,10 +151,11 @@ fun cancelFlow() {// 协程取消，协程下的flow也会取消
                 println("Emitting $it")
                 emit(it)
             }
-        }.onEach { currentCoroutineContext().ensureActive() }.cancellable().collect { value ->
-            if (value == 3) cancel()
-            println(value)
-        }
+        }.cancellable()
+            .collect { value ->//如果不用cancellable ，使用.onEach { currentCoroutineContext().ensureActive() 抛出异常}阻止flow发射
+                if (value == 3) cancel()// 协程取消后 发现flow仍然在发射并且收集端打印了所有信息，这时候需要调用cancellable，在协程取消的时候停止flow发射
+                println(value)
+            }
 
     }
 }
