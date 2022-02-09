@@ -8,6 +8,7 @@ import kotlin.reflect.typeOf
 
 /**
  * Kotlin Vocabulary | Kotlin 委托代理 - 谷歌开发者的文章 - 知乎 https://zhuanlan.zhihu.com/p/339765203
+ * 委托模式已被证明是实现继承的一个很好的替代方案
  * 委托
  * 1. 一个对象将它的一些职责委托或传递给另一个类的实例
  * 2. 委托比继承更加灵活，建议使用委托
@@ -44,7 +45,8 @@ fun main() {
     // 但是，当我们将属性变为CSharpProgrammer的一个实例时，只修改了字段，而没有修改对委托的引用。
     //4.1 委托变量
     println("---委托变量---")
-    var comment: String by PoliteString("something")
+    var comment: String by PoliteString("something")//对于某些常见类型的属性，每次用到都要手动实现它们，
+    // 不如将它们添加到库中通过by随时调用
     println(comment)
     comment = "stupid"
     println(comment)
@@ -87,8 +89,6 @@ fun main() {
     var num by vetoable(1) { _, oldValue, newValue -> oldValue < newValue }
     num = 0
     println("num = $num")
-
-
 }
 
 interface Worker {

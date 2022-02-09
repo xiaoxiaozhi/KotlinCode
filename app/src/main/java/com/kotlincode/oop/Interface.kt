@@ -10,6 +10,8 @@ package com.kotlincode.oop
  * 2. this 指向TVRemote 实例 this@TV1指向外部类的实例
  * 3. super@TV1 指向tv1 的基类
  * 创建匿名内部类
+ *
+ * 函数式接口：只有一个抽象方法的接口叫做功能接口 fun interface XXX
  */
 fun main() {
     //1. 接口
@@ -27,6 +29,15 @@ fun main() {
     println("${tv1.toString()} remote = ${tv1.remote.hashCode()} tv1 = ${tv1.remote.toString()}")
     tv1.remote.down()
     println("${tv1.toString()} remote = ${tv1.remote.hashCode()} tv1 = ${tv1.remote.toString()}")
+    //3. SAM 接口
+    var isEven = object : IntPredicate {
+        override fun accept(i: Int): Boolean {
+            return i % 2 == 0
+        }
+    }//不使用函数式接口var
+    var result = IntPredicate { it % 2 == 0 }// 使用函数式接口简化创建代码
+    result.accept(2)
+
 }
 
 interface Remote {
@@ -107,4 +118,9 @@ class TV1 {
             }
         }
 
+}
+
+//4. 函数式接口
+fun interface IntPredicate {
+    fun accept(i: Int): Boolean
 }

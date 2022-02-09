@@ -4,6 +4,19 @@ import kotlinx.coroutines.*
 import java.util.*
 
 /**
+ *  ------结构化并发-----------
+ *  1. https://www.jianshu.com/p/dcf63586335d
+ *     即父Job和子Job形成树的数据结构，处理父子协程的cancel和exception
+ *     结构化并发在android中的应用，启动一个全局协程处理UI更新，如果遇到网络问题迟迟更新不了，用户返回重进就会造成协程重复执行的问题，
+ *     为避免这个问题把协程放在UI的的协程作用域中处理
+ *  2. https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/-coroutine-scope/index.html
+ *     CoroutineScope() 返回一个使用Dispatchers.Default的协程作用域
+ *     MainScope()返回一个使用 Dispatchers.Main的协程作用域
+ *     coroutineScope()方法接收一个参数 CoroutineScope
+ *  ------非阻塞挂起-----------
+ *  https://www.jianshu.com/p/efd5037eda48
+ *
+ *
  * 《https://www.bilibili.com/video/BV1Ph411C7dG?p=58&spm_id_from=pageDriver b站大牛老师
  *  取消协程
  *  1. 使用cancel 和 join 组合 或者 cancelAndJoin()取消协程

@@ -41,7 +41,7 @@ fun main() {
     coldFlow()
     //4.取消流
     println("-----cancelFlow------")
-    cancelFlow()
+//    cancelFlow()
     //5. 捕获异常
     println("-----flowException------")
     flowException()
@@ -209,7 +209,10 @@ fun flowException() {
 fun middleFlow() {
     runBlocking {
         //4.1  map filter 与其他中间操作符最大的区别是 前者是挂起函数
-        flowOf(1).map { }
+        flowOf(1,2).map {
+            println("flow map---$it")
+            it.toInt()
+        }.collect {  }
         //4.2 transform 在计算值之前,插入一个字符串
         (1..3).asFlow().transform {
             emit("emit $it")

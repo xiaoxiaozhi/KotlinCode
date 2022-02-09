@@ -127,14 +127,15 @@ fun maps() {
 fun generateSequences() {
     sequenceOf("1", "2", "3")//6.1 从一堆元素构建序列
     listOf<String>("1", "2", "3", "4").asSequence()//6.2 从可迭代对象构建序列
-    generateSequence(1) { if (it < 8) it + 2 else null }//6.3 从generateSequence函数构建对象，参数是第1个值，知道返回null 序列结束
+    generateSequence(1) { if (it < 8) it + 2 else null }//6.3 从generateSequence函数构建对象，参数是第1个值，直到返回null 序列结束
     sequence {//6.4 从代码块构建序列
         yield(1)// 单个元素插入到序列
         yieldAll(listOf(3, 5))
         yieldAll(generateSequence(7) { it + 2 })
     }
+
     //序列迭代，sequence执行hasNext，才会触发sequence内部逻辑，直到第一个yield为止
-    val sequence = sequence {
+    val seq = sequence {
         log("A1")
         log("A1")
         yield(1)
@@ -145,11 +146,11 @@ fun generateSequences() {
         log("Done")
     }
     log("before sequence")
-    for (item in sequence) {
+    for (item in seq) {
         log("Got $item")
         break
     }
-}// 序列中的数据并不像其它集合一次性返回，二是计算一个，返回一个。
+}// 序列中的数据并不像其它集合一次性返回，而是计算一个，返回一个。
 // 序列的计算过程依赖主线程，因此会阻塞主线程
 
 private fun log(message: String) = println("[${Thread.currentThread().name}] $message")
