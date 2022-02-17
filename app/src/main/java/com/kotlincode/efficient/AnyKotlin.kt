@@ -25,6 +25,14 @@ fun main() {
     //2.1 明确接收方 有this
     result.run { println(this.javaClass.name) }  //返回lambda结果
     result.apply { println(this.javaClass.name) }//返回接收者
+    //2.2 调用者是参数，返回lambda结果
+    with(result) {
+
+    }
+    //2.3 没有调用者，返回lambda结果
+    run {
+
+    }
     //3. 嵌套lambda的作用域
     top {
         println("$this ,$length")

@@ -107,6 +107,7 @@ class Car6(private val yearOfMake: Int, private var theColor: String) {
 }
 
 //1.8 二级构造函数
+//class Person @Inject private  constructor(){}//当主构造方法没有任何注解或者可见性修饰符时，可以省略
 class Person(private val first: String, private val last: String) {
     //1.如果不编写住构造函数，kotlin将创建一个无参数的默认构造函数
     var fulltime = true;
@@ -131,7 +132,10 @@ class Person(private val first: String, private val last: String) {
 
 //1.9 定义方法
 class Student(private val first: String, private val last: String) {
-    internal fun fullName() = println("$first $last")
+    @JvmName(" fullName")//使用internal和JvmName实现kotlin独占 https://blog.csdn.net/qq_23626713/article/details/90698534
+    internal fun fullName() =
+        println("$first $last")//internal 修饰类的方法，表示这个类方法只适合当前module使用，如果其他module使用的话，会找不到这个internal方法或者报错
+
     private fun yearOfMake(): Int = throw RuntimeException("not implement yet")
 }
 
