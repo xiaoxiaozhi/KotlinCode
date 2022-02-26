@@ -13,7 +13,7 @@ fun main() {
     val orange: List<Orange> = listOf();
     receiveFruit(orange)//限制了数组，但没有限制列表,原因是数组接口和列表接口后者有向下兼容List<out E>
     //2. 协变
-    val apples = Array<Apple>(3) { _ -> Apple() }
+    val apples = Array<Apple>(3) { _ -> Apple() }//用不到的参数用下划线省略
     val fruits = Array<Fruit>(3) { _ -> Fruit() }
     copyFromTo(apples, fruits)
     //3. 逆变
