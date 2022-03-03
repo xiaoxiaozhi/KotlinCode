@@ -32,7 +32,7 @@ fun main() {
     //2. 更多的表达式更少的语句
     val introduce = if (Date().time > 0) "我今年18岁" else "未满18岁"//①if是一个表达式 ，根据年龄获取描述，想想java在这里会怎么做
     println("$introduce")
-    println(tryExpr(true))//②try catch 也是一个表达式，没有异常的情况下 try 代码块最后一条表达式将成为结果，有异常的情况下则是catch
+    println(tryExpr(false))//②try catch 也是一个表达式，没有异常的情况下 try 代码块最后一条表达式将成为结果，有异常的情况下则是catch
     //3.赋值不是表达式
     var a = 1
     var b = 2
@@ -61,6 +61,7 @@ fun tryExpr(bloweUp: Boolean): Int {
     } catch (e: Exception) {
         4
     } finally {
+        println("finally执行了，但是表达式的值只取try或者catch最后一个结果")
         5
     }
 }
