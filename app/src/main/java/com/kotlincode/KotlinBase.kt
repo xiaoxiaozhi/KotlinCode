@@ -1,7 +1,9 @@
 package com.kotlincode
 
 import java.lang.Exception
+import java.time.LocalDate
 import java.util.*
+import kotlin.reflect.jvm.internal.impl.metadata.deserialization.VersionRequirement
 
 /**
  * 语句与表达式
@@ -40,6 +42,19 @@ fun main() {
     a = b      //赋值
     println(a)
     //a = b = c//这种情况会报错 赋值不是表达式 相当于 a= (b=c) 由于b=c不是表达式 ，所以不能给a赋值
+    //4. 范围和级数 Ranges progressions
+    3 in 0..5 //in关键字检查数字是否在范围内 相当于 0<=3 && 3<=5
+    6 !in 0..5 // !in 检查数字不在范围内
+    for (i in 0..5) {
+    }//迭代
+    for (i in 5 downTo 1) {
+    }//反向迭代
+    for (i in 0..5 step 2) {
+    }//以任意步长迭代  024
+    for (value in 1 until 5) print("$value ")  //until 前闭后开区间
+    (1..5).contains(2)// 判断数字是否在范围内
+    //4.2 Progressions级数 让一些类的范围拥有迭代能力
+//    [查看博客](https://dzone.com/articles/what-are-kotlin-progressions-and-why-should-you-care)
 }
 
 //1. 相等性检查 ==和===

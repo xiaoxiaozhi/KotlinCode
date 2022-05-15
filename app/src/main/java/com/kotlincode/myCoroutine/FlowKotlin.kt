@@ -95,6 +95,7 @@ fun flowSimple1(): Flow<Int> = flow { // flow builder
     for (i in 1..3) {
 //        delay(100) // pretend we are doing something useful here
         Thread.sleep(100)
+        println("flowSimple1-----$i")
         emit(i) // emit next value
     }
 }
@@ -209,10 +210,10 @@ fun flowException() {
 fun middleFlow() {
     runBlocking {
         //4.1  map filter 与其他中间操作符最大的区别是 前者是挂起函数
-        flowOf(1,2).map {
+        flowOf(1, 2).map {
             println("flow map---$it")
             it.toInt()
-        }.collect {  }
+        }.collect { }
         //4.2 transform 在计算值之前,插入一个字符串
         (1..3).asFlow().transform {
             emit("emit $it")

@@ -3,6 +3,7 @@ package com.kotlincode
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.util.toRange
+import java.time.LocalDate
 
 /**
  * 外部迭代和参数选配
@@ -16,7 +17,7 @@ fun main() {
     println(systemInfo())
 }
 
-//1.范围类
+//1.范围类 ranges
 fun ranges() {
     //1.1 正向迭代 ..运算符 前面和后面的值是一个闭区间
     val array: IntRange = 1..5//int数组
@@ -39,7 +40,9 @@ fun ranges() {
     for (value in 1 until 10 step 2) print("$value ")
     println("")
     //1.4 filter 筛选 不规则的跳过一些值
-    for (value in (1..9).filter() { it % 2 == 0 }) print("$value ")
+    for (value in (1..9).filter { it % 2 == 0 }) print("$value ")
+
+
 }
 
 //2.遍历数组和列表

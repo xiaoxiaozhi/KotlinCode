@@ -25,6 +25,7 @@ import java.util.*
  *  4. 父协程总会等待子协程完成
  */
 fun main() {
+
     val s: Int.() -> Unit = { println("123") }
 
     println(
