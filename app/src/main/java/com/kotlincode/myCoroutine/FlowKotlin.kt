@@ -7,31 +7,35 @@ import kotlin.system.measureTimeMillis
 
 /**
  * https://zhuanlan.zhihu.com/p/114295411
+ * [LiveData，StateFlow，SharedFlow对比](https://juejin.cn/post/7007602776502960165)
  * kotlin flow
  * 1. 利用序列在不阻塞主线程情况下，一个一个返回元素
  * 2. Sequence 无法使用delay
  * 3. 背压问题在生产者的生产速率高于消费者的处理速率的情况下出现
+ * note:5. 在flow生成元素的逻辑代码中 修改上下文是不允许的,直接运行报错
+ * note:1. flow在不指定协程(flowOn)的情况下,逻辑代码和终端操作处于同意协程中，逻辑代码就算写在 Default 协程中，也不顶用
+ * TODO callBackFlow{}构建器、
+ *
  */
 private fun log(message: String) = println("[${Thread.currentThread().name}] $message")
 
 fun main() {
     //1. 为什么 在协程中使用Flow而不是Sequence
-    runBlocking {//这个列子是想展示flow是在其他线程中执行生产元素，结果返回到主线程，从而实现异步
-        launch {
-            for (k in 1..5) {
-                delay(100)
-                log("launch $k")
+    runBlocking {
+        log("runBlocking")
+        val f = withContext(Dispatchers.Default) {
+            flow { // flow builder
+                for (i in 1..5) {
+//        delay(100) // pretend we are doing something useful here
+                    log("flow $i")
+                    delay(1000)
+                    emit(i) // emit next value flow在不指定协程(flowOn)的情况下,逻辑代码和终端操作处于同意协程中，逻辑代码就算写在 Default 协程中，也不顶用
+                }
             }
         }
-//        flowSimple().collect { log(it.toString()) }//flow的逻辑代码运行在外部协程提供的上下文,观察代码发现
-        withContext(Dispatchers.Default) {
-            flowSimple().collect {}//flow逻辑代码运行在指定的设置上下文运行线程 flowOn(Dispatchers.IO)
-        }
-//        flowSimple().flowOn(Dispatchers.Default)
-//            .collect { log(it.toString()) }//flow的逻辑代码运行在指定的上下文中 flowOn(Dispatchers.IO)，collect末端操作已经是流返回结果
-        //            运行在外部协程设置上下文中，在这里是主线程
-
-//        sequenceSimple().forEach { println(it.toString()) }
+//        withContext(Dispatchers.Default) {
+        f.collect { log("$it") }//flow逻辑代码执行协程，只能通过flowOn()指定，如果不指定flow逻辑代码运行在 终端操作所在的协程。例如f.collect()
+//        }
     }
     //2. Flow的几种创建
     println("-----createFlows------")
@@ -45,37 +49,40 @@ fun main() {
     //5. 捕获异常
     println("-----flowException------")
     flowException()
-    //4. 中间操作
+    //6. Completion
+    println("-----flowCompletion------")
+    flowCompletion()
+    //7. 中间操作
     println("-----middleFlow------")
     middleFlow()
-    //5. flow上下文
+    //8. flow上下文
     println("-----contextFlow------")
     contextFlow()
-    //6. flow缓冲区，解决背压
+    //9. flow缓冲区，解决背压
     println("-----bufferFlow------")
     bufferFlow()
-    //7. flow合并，解决背压
+    //10. flow合并，解决背压
     println("-----conflateFlow------")
     conflateFlow()
-    //8. zip组合flow
+    //11. zip组合flow
     println("-----zipFlow------")
     zipFlow()
-    //9. 发射前执行操作
+    //12. 发射前执行操作
     println("-----eachFlow------")
     eachFlow()
-    //10. combine组合flow
+    //13. combine组合flow
     println("-----combineFlow------")
     combineFlow()
-    //11. 消除嵌套flow
+    //14. 消除嵌套flow
     println("-----flatteningFlows------")
     flatteningFlows()
-    //12. 并发消除嵌套flow
+    //15. 并发消除嵌套flow
     println("-----flatteningFlows------")
     flatMapMergeFlow()
-    //13 并发消除嵌套，收集端只处理最新值
+    //16 并发消除嵌套，收集端只处理最新值
     println("-----flatMapLatestFlow------")
     flatMapLatestFlow()
-    //14. 终端操作符
+    //17. 终端操作符
     println("-----terminalFlow------")
     terminalFlow()
 
@@ -86,7 +93,7 @@ fun flowSimple(): Flow<Int> = flow { // flow builder
     for (i in 1..5) {
 //        delay(100) // pretend we are doing something useful here
         log("flow $i")
-        Thread.sleep(100)
+        delay(1000)
         emit(i) // emit next value
     }
 }
@@ -149,30 +156,38 @@ fun cancelFlow() {// 协程取消，协程下的flow也会取消
     runBlocking {//取消检查
         flow {
             (1..5).forEach {
-                println("Emitting $it")
-                emit(it)
+                println("cancelFlow----emit $it")
+                emit(it)//emit 在发射前对 ensureActive(该状态取决于是否调用cancel())检查，如果发现已经被取消。则直接抛出异常
             }
-        }.cancellable()
-            .collect { value ->//如果不用cancellable ，使用.onEach { currentCoroutineContext().ensureActive() 抛出异常}阻止flow发射
-                if (value == 3) cancel()// 协程取消后 发现flow仍然在发射并且收集端打印了所有信息，这时候需要调用cancellable，在协程取消的时候停止flow发射
-                println(value)
+        }.collect { value ->//如果不用cancellable ，使用.onEach { currentCoroutineContext().ensureActive() 抛出异常}阻止flow发射
+            if (value == 3) cancel()
+            println(value)
+        }
+    }
+    runBlocking<Unit> {// 然而出于性能原因，大多数其他流运算符不会自己执行额外的取消检查，例如扩展函数得到的flow
+        (1..5).asFlow()
+            .cancellable()//为了避免这种情况，在收集前执行是 cancellable()，这是最简单的方法
+            .onEach { currentCoroutineContext().ensureActive() }//为了避免这种情况您可以 在收集前执行 .onEach { currentCoroutineContext().ensureActive() }，TODO 没看懂为什么返回false 就不发射了
+            .collect { value ->
+                if (value == 3) cancel()//由于不检查仍然发射
+                println("onEach检查取消------$value")
             }
-
     }
 }
 
 
 //3. 捕获异常
 fun flowException() {
+    //TODO 官网解释，在try catch 块中 使用flow{}构建器发射值，违反了异常透明性。想不明白这个异常透明性是什么东西
     runBlocking {
         flow {
             emit(1)
             throw ArithmeticException("Div 0")
         }.catch { //Flow 的设计初衷是希望确保流操作中异常透明,try ... catch ... finally违背原则，不推荐
-
-            println("caught error: $it")
+            println("caught error: $it")//遵守异常透明性的 catch 中间运算符只捕获上游异常. 例如 map写在catch下面就捕获不了map中的异常
+//            emit("Caught $it")// catch 能把异常当做值重新发射出去
         }.onCompletion {//在  flow 收集、取消、异常之后执行类似finally， onCompletion 和 catch的执行顺序看谁先被调用，
-            //与catch不同，onCompletion既能接收到发射异常也能接收到收集异常， onCompletion有个可空参数Throwable 用来确定收集(或发射)到底是异常还正常
+            //与catch不同，onCompletion既能接收到发射异常也能接收到收集异常， onCompletion有个可空参数Throwable 用来确定收集(或发射)到底是异常还正常完成
             println("finally.")
         }.collect(::println)
     }
@@ -191,7 +206,7 @@ fun flowException() {
             .collect { value -> println(value) }
     }
     println("----------------------------------------------------------------")
-    runBlocking {//catch 只能捕获发射端异常，如果在收集端出现异常则会报错，此时可以把收集端的代码移到onEach中执行
+    runBlocking {//catch是中间操作符，如果异常发生在collect中，则不能捕获此时可以把收集端的代码移到onEach中执行,collect什么都不做
         flow<Int> {
             (1..3).forEach {
                 println("Emitting $it")
@@ -199,9 +214,26 @@ fun flowException() {
             }
         }.onEach { value ->
             check(value <= 1) { "Collected $value" }
-            println(value)
-        }.catch { println("Caught $it") }.collect() // emit on exception
+            println("onEach----$value")//onEach 要在catch前面才起作用
+        }.catch { println("Caught $it") }.collect()
 
+    }
+}
+
+//6. flow 完成时
+fun flowCompletion() {
+    //当flow执行终端操作之后，可能需要执行一个操作，可以通过两种方式 try finally 和 onCompletion操作符
+    runBlocking {
+        //6.1 在终端操作外面包上try finally
+        try {
+            (6..8).asFlow().collect { println("$it") }
+        } finally {
+            println("flow------finally")
+        }
+        //6.2使用 中间操作 onCompletion,该运算符在终端操作结束时调用. 使用这个操作符的优点是 onCompletion有个可空参数Throwable 用来确定收集(或发射)到底是异常还正常完成
+        (9..12).asFlow()
+            .onCompletion { cause -> println("flow-----onCompletion------${cause?.message}") }
+            .collect { println("$it") }
     }
 
 }
@@ -214,14 +246,18 @@ fun middleFlow() {
             println("flow map---$it")
             it.toInt()
         }.collect { }
-        //4.2 transform 在计算值之前,插入一个字符串
-        (1..3).asFlow().transform {
+        //4.2 transform 创建了一个新流,类似于map，transform不仅对传进来的元素做修改，还能emit新的元素
+        (4..7).asFlow().transform {
+            println("--------")
             emit("emit $it")
             emit(1)
+            println("--------")
         }.collect(::println)
 //        println("flow num $c")
         //4.3 take 限制大小
         (1..3).asFlow().take(2).collect(::print)
+        //4.4 onEach
+//        返回一个流，该流在上游流的每个值向下游发出之前调用给定的操作
     }
 
 }
@@ -236,23 +272,40 @@ fun terminalFlow() {
         println(flow { emit(1) }.first())
         //4.4 fold类似reduce 可以设置初始值
         println((1..3).asFlow().fold(1) { a, b -> a + b })
-        //4.5 collect 挂起函数，收集消耗flow；launchIn非挂起函数，指定协程执行，功能同collect
+        //4.5 collect 挂起函数，收集消耗flow；launchIn非挂起函数，新建协程执行，功能同collect(不阻塞原有协程)
         (1..3).asFlow().launchIn(this)//查看源码，发现收集操作在新建子协程中进行，注意launchIn还返回一个job，该job只用于取消collect子协程
     }
 }
 
-//6. flow的上下文
+//5. flow的上下文
 fun contextFlow() {
     //5.1 默认情况下，运行在外部协程的上下文中，也可以指定上下文
-    //5.2 在flow生成元素的逻辑代码中 修改上下文是不允许的,这是个错误的示范，直接运行报错
-//    flow {
-//        withContext(Dispatchers.Default){
-//            emit(1)
-//        }
-//    }
+    //5.2 在flow生成元素的逻辑代码中 修改上下文是不允许的,直接运行报错
+    flow {
+        withContext(Dispatchers.Default) {
+            println("sadas")//打印后发现不执行
+        }
+        emit(1)//emit放在修改上下文的协程中会报错
+    }
+    runBlocking {
+        flow {
+            for (i in 1..3) {
+                delay(100) // pretend we are asynchronously waiting 100 ms
+                emit(i) // emit next value
+            }
+        }.collect() { log(it.toString()) }//flow的逻辑代码运行在指定的上下文中 flowOn(Dispatchers.IO)，collect末端操作已经是流返回结果
+//                运行在外部协程设置上下文中，在这里是主线程
+    }
+    runBlocking {
+        (12..15).asFlow().cancellable()
+            .map { log("flowOn之前的map----$it") }
+            .flowOn(Dispatchers.Default)//flowOn 的上游数据运行在flowOn指定的协程中，下游数据以及collect不受影响
+            .map { log("flowOn之后的map---$it") }.collect { log("收集") }
+    }
+
 }
 
-//7. flow缓冲区 也是并发
+//6. flow缓冲区 也是并发
 fun bufferFlow() {
     val f = flow {
         for (i in 1..3) {
@@ -281,7 +334,7 @@ fun bufferFlow() {
     }//buffer操作符可以使发射和收集的代码并发运行，收集端来不及消费的元素放在缓冲区，耗时取决于发射端和收集端最大时长，从而提高效率
 }
 
-//8. 合并
+//7. 合并
 fun conflateFlow() {
     //7.1 conflate 发射端产生一个值会交给收集端，收集端处理，如果收集端处理每一个值的时间比发射端长；
     // 收集端处理一个值之后，就只会处理最新接收的，这里只打印0和99。
@@ -328,7 +381,7 @@ fun eachFlow() {
 //10. 组合zip
 fun zipFlow() {
     runBlocking {
-        val numb = (1..3).asFlow() // numbers 1..3
+        val numb = (1..3).asFlow().onEach { delay(200) } // numbers 1..3
         val strs = flowOf("one", "two", "three") // strings
         numb.zip(strs) { a, b -> "$a -> $b" } // compose a single string
             .collect { println(it) } // collect and print
@@ -339,12 +392,12 @@ fun zipFlow() {
 //11. combine 组合
 fun combineFlow() {
     runBlocking {
-        val numb = (1..3).asFlow().onEach { delay(50) } // numbers 1..3
-        val strs = flowOf("one", "two", "three").onEach { delay(60) } // strings
+        val numb = (1..3).asFlow().onEach { delay(1) } // numbers 1..3
+        val strs = flowOf("one", "two", "three").onEach { delay(400) } // strings
         numb.combine(strs) { a, b -> "$a -> $b" } // compose a single string
             .collect { println(it) } // collect and print
     }
-}//与zip不同，两个流任何一个flow发射，收集端都会执行，这时取另一个flow最近的值，如果没有就等待
+}//与zip不同，第一次两个流都发射，收集端才会执行。之后任何一个flow发射，收集端都会执行，这时取另一个flow缓冲区最近的值
 
 //12. 消除嵌套flow
 fun flatteningFlows() {
@@ -385,5 +438,12 @@ fun flatMapLatestFlow() {
             .collect { value -> // collect and print
                 println("$value at ${System.currentTimeMillis() - startTime} ms from start")
             }
+    }
+}
+//15 StateFlow
+fun stateFlow() {
+    runBlocking {
+        val state = MutableStateFlow(1)//
+
     }
 }

@@ -1,5 +1,7 @@
 package com.kotlincode
 
+import android.net.Network
+import android.view.View
 import java.lang.Exception
 import java.time.LocalDate
 import java.util.*
@@ -8,6 +10,9 @@ import kotlin.reflect.jvm.internal.impl.metadata.deserialization.VersionRequirem
 /**
  * 语句与表达式
  */
+typealias IntSet = Set<Int>
+typealias BindCallback<T> = (view: View, data: T, position: Int) -> Unit
+
 fun main() {
     val greet = "hello"
     println(greet::class)
@@ -55,6 +60,8 @@ fun main() {
     (1..5).contains(2)// 判断数字是否在范围内
     //4.2 Progressions级数 让一些类的范围拥有迭代能力
 //    [查看博客](https://dzone.com/articles/what-are-kotlin-progressions-and-why-should-you-care)
+    //5. 别名  typealise 类型别名 = 已有类型
+    val intSet: IntSet = setOf(1, 22, 333)
 }
 
 //1. 相等性检查 ==和===

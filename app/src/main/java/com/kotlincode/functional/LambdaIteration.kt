@@ -8,8 +8,9 @@ package com.kotlincode.functional
  * 2. map    映射 flatMap、flatten
  * 3. reduce 累计 sum
  * 4. sortedBy
- * 5. 简单地说，集合是急切的，而序列是懒惰的。序列是对集合进行优化的包装器，旨在提高性能。
- * 如果集合很小，那么性能上的差异几乎可以忽略不计。在这种情况下，更容易调试和推理的及早求值可能会更好
+ * 5. 简单地说，集合是急切的，而序列是懒惰的。序列是对集合进行优化的包装器，旨在提高性能。比如，中间操作 map filter 结尾操作forEach。列表是所有的元素都在map执行完再执行filter，直到forEach。而序列是一个元素进过map filter 再到 forEach
+ *    [列表和序列的处理流程图](https://kotlinlang.org/docs/sequences.html#sequence-processing-example)
+ *    如果集合很小，那么性能上的差异几乎可以忽略不计。在这种情况下，更容易调试和推理的及早求值可能会更好
  */
 fun main() {
     //1. 外部迭代与内部迭代
@@ -49,8 +50,8 @@ fun main() {
     println(
         people.asSequence().filter(::isAdult).map(::fetchFirstName).first()
     )//使用asSequence()列表转换成序列
+//    people.asSequence().filter(::isAdult).map(::fetchFirstName).forEach { println("people ---$it") }
     //序列执行中间操作时会返回一个序列，当调用最后一个终端方法的时候，延迟的filter()和map()操作将被调用。
-
 
 
 }

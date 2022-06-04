@@ -5,6 +5,7 @@ import kotlinx.coroutines.channels.*
 
 /**
  * https://zhuanlan.zhihu.com/p/83591180
+ * 通道在概念上与 BlockingQueue 非常相似
  * 1. Deferred<T>能够在协程之间传递值，如果值是一连串的数字怎么传递呢？Channel能够在不同协程之间用流的方式传递值
  * 2. 同flow一样是冷数据，没有消费就不生产数据流
  * 3. send和(receive、for 、consumeEach等接收操作)都是挂起函数，前者当通道被占满就会挂起，后者通道没有数据就会挂起等待
@@ -78,7 +79,7 @@ fun closeAndIterator() {
     }
 }
 
-//3. channel构建起
+//3. channel构建器
 fun buildChannel() {
     runBlocking {
         val squares = produceSquares()//创建一个新的协程，将一系列生成的值发送给通道，最后返回ReceiveChannel

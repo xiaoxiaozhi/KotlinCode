@@ -1,15 +1,21 @@
 package com.kotlincode
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+
 
 /**
- * 集合
- * Pair   两个值的元组 元组中的值可以是不同类型
- * Triple 三个值的元组
- * Array  数组
- * List   有序集合
- * Set    无序集合
- * Map    映射
- * sequnce
+ * 集合 列表、序列操作查看代码LambdaIteration.kt
+ * 1. 元组
+ *    1.1 Pair   两个值的元组 元组中的值可以是不同类型
+ *    1.2 Triple 三个值的元组
+ * 2. Array  数组
+ * 3. List有序集合
+ *    Iterable会急切地执行这些步骤: 每个处理步骤完成并返回其结果——一个中间集合。在此集合上执行以下步骤。
+ * 4. Set    无序集合
+ * 5. Map    映射
+ * 6. Sequences
+ *
  */
 fun main() {
     println("-----二值元组-----")
@@ -27,7 +33,7 @@ fun main() {
 }
 
 /**
- * 1. Pair元组
+ * 1.1 Pair元组
  */
 fun pairFunction() {
     // 1.1 创建Pair
@@ -48,7 +54,7 @@ fun airport() {
 
 fun getTemp(name: String): String = "${Math.round(Math.random() * 30) + name.count()}"
 
-//2.对象和基元数组
+//2.数组
 fun arrays() {
     //2.1 创建数组的最简单方式是 arrayOf() 一旦创建了数组就可以使用[index] 访问
     println("arrayOf() 创建一个Integer类型的数组${arrayOf(1, 2, 3).javaClass}如果想创建原始类型数组，最好使用intArrayOf()")//
@@ -70,6 +76,9 @@ fun lists() {
     val fruits = listOf("Apple", "Banana", "Grape")//listOf()创建不可变列表使用
     //3.2 可变列表
     val numbers = mutableListOf(1, 2, 3)
+//    numbers.map {
+//        println("numbers map = $it")
+//        it + 1 }.forEach { item -> println("numbers forEach = $item") }
     numbers[0] = 2 //改变值
     println("创建可变列表---$numbers")
     //3.3 List 集合类型
@@ -130,7 +139,9 @@ fun generateSequences() {
     generateSequence(1) { if (it < 8) it + 2 else null }//6.3 从generateSequence函数构建对象，参数是第1个值，直到返回null 序列结束
     sequence {//6.4 从代码块构建序列
         yield(1)// 单个元素插入到序列
+        println("yield1")
         yieldAll(listOf(3, 5))
+        println("yield35")
         yieldAll(generateSequence(7) { it + 2 })
     }
 
@@ -150,7 +161,17 @@ fun generateSequences() {
         log("Got $item")
         break
     }
+    // sequence运行在Default线程
+    runBlocking(Dispatchers.Default) {
+        val s = sequence {
+            yield(1)
+//            kotlinx.coroutines.delay(1000) 被@RestrictsSuspension修饰过当SequenceScope作为扩展函数接受者的时候，其suspend函数内部不能调用其它CoroutineScope的suspend函数。
+            log("runBlocking-----sequence")
+            yield(2)
+        }
+        s.forEach { log("forEach------$it") }
+    }
 }// 序列中的数据并不像其它集合一次性返回，而是计算一个，返回一个。
-// 序列的计算过程依赖主线程，因此会阻塞主线程
+// 序列的计算过程处于它所在的线程
 
 private fun log(message: String) = println("[${Thread.currentThread().name}] $message")

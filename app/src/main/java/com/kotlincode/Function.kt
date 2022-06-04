@@ -71,3 +71,4 @@ fun greetMany(msg: String, vararg names: String) = println("$msg  ${names.joinTo
 //9.解构 将值从现有对象提取到变量中。结构化或构造是从变量中创建对象而解构正好相反
 fun getFullName() = Triple("john", "Quincy", "Adams")
 
+
