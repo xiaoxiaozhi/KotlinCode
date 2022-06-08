@@ -1,4 +1,4 @@
-package com.kotlincode
+package com.kotlincode.collections
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -15,7 +15,7 @@ import kotlinx.coroutines.runBlocking
  * 4. Set    无序集合
  * 5. Map    映射
  * 6. Sequences
- *
+
  */
 fun main() {
     println("-----二值元组-----")
@@ -30,6 +30,8 @@ fun main() {
     maps()
     println("-----Sequences-----")
     generateSequences()
+    println("-----sorted-----")
+    kotlinSort()
 }
 
 /**
@@ -173,5 +175,7 @@ fun generateSequences() {
     }
 }// 序列中的数据并不像其它集合一次性返回，而是计算一个，返回一个。
 // 序列的计算过程处于它所在的线程
+
+
 
 private fun log(message: String) = println("[${Thread.currentThread().name}] $message")
