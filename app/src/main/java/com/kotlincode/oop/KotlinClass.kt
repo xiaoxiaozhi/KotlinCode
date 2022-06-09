@@ -83,6 +83,7 @@ class Car5(private val theColor: String) {
 
 //1.7 初始化代码 init{}
 class Car6(private val yearOfMake: Int, private var theColor: String) {
+    val firstProperty = "First property: $yearOfMake".also(::println)//4. 初始化块与属性的执行顺序与 他们在类中的顺序相同，该例先打印First property: $yearOfMake" 再然后打印 init1 $fullLevel
     var fullLevel = 100 //
     var color = theColor
         set(value) {
@@ -115,7 +116,10 @@ class Person(private val first: String, private val last: String) {
 
     constructor(first: String, last: String, fte: Boolean) : this(first, last) {
         fulltime = fte
-    }//2. 二级构造函数用 constructor 声明
+    }//2. 二级构造函数用 constructor 声明，如果类有一个主构造函数，则每个二级构造函数都要通过this 调用主构造函数
+    //    初始化代码块和属性做为主构造函数的一部分，主构造函数的委托作为辅助构造函数的第一条语句发生，
+    //    因此所 有初始化器块和属性初始化器中的代码都在辅助构造函数体之前执行
+    //    该例中 fulltime以及Init{}的执行顺序在 次级构造函数之前
 
     constructor(first: String, last: String, loc: String) : this(first, last) {
         location = loc

@@ -6,7 +6,7 @@ package com.kotlincode.collections
  *       Comparable的子类 用 compareTo()比较大小 正值表示接收方大于参数；负值表示它小于参数;零表示对象是相等的;
  *   1.2 自定义排序：创建Comparator比较器为非可比对象定义顺序，或者为可比类型定义非自然的顺序
  *   1.3 使用sorted() 和 sortedDescending()函数为自然元素排序(升序、降序)
- *   1.4 使用sortedBy() 和 sortedByDescending()函数对非自然元素排序，该函数将集合元素映射到 Compable的值，并按该值的自然顺序对集合进行排序。
+ *   1.4 使用sortedBy() 和 sortedByDescending()函数对非自然元素排序，该函数将集合元素映射到 继承了Compable的元素，并按该值的自然顺序对集合进行排序。
  *       假设 listOf("one", "two", "three", "four")是非自然元素，无法排序，但是他们的长度为自然元素，利用这个进行排序
  *       若要为集合排序定义自定义顺序，您可以使用sortedWith ()函数提供自己的比较器
  *   1.5 翻转顺序 reversed() 和asReversed() 返回原始集合的反转后的副本，后者不同的是，如果原始集合有修改，会反应在副本集合上
