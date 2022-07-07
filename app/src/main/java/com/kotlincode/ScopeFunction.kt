@@ -2,11 +2,15 @@ package com.kotlincode.efficient
 
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
+import kotlin.random.Random
 
 /**
  * 作用域函数
  * 1. 带有接收者的函数类型，和扩展函数类似允许在函数体内部访问接收者对象的成员
  * 2. 主要功能是为调用者函数提供内部作用域。
+ * 4. takeIf and takeUnless
+ *    takeIf接收一个判断条件表达式，如果判断表达式为 true 则返回对象本身，false返回 null .takeUnless 与 takeIf 相反
+ *
  */
 fun main() {
     val length = 3
@@ -42,6 +46,11 @@ fun main() {
             println("${this@top}")
         }
     }
+    //4. takeIf and takeUnless
+    val number = Random.nextInt(100)// 生成一个范围在0~x（不包含X）内的任意正整数
+    val evenOrNull = number.takeIf { it % 2 == 0 }
+    val oddOrNull = number.takeUnless { it % 2 == 0 }
+    println("even: $evenOrNull, odd: $oddOrNull")
 }
 
 fun top(func: String.() -> Unit) = "hello".func()

@@ -59,6 +59,7 @@ fun nickName2(name: String?): String? {
     return if (name == "William") {//每一个非空类型 都有对应的可空类型（非空？），可空类型能够引用非空和null
         "Bill"
     } else {
+        println("安全调用运算符调用者为空则返回-----${name?.reversed()}")//为null的调用者调用安全运算符，返回null
         name?.reversed()?.toUpperCase()   //对于可空类型的方法调用，使用安全调用运算符 (?.)
     }
 }
@@ -72,7 +73,7 @@ fun nickName3(name: String?): String {
     }
 }
 
-//2.3 !!非空断言运算符  （不建议使用）
+//2.4 !!非空断言运算符  （不建议使用）
 fun nickName4(name: String?): String {
     return if (name == "William") {//每一个非空类型 都有对应的可空类型（非空？），可空类型能够引用非空和null
         "Bill"
@@ -82,12 +83,18 @@ fun nickName4(name: String?): String {
     }
 }
 
-//2.4 when
+//2.5 when
 fun nickName5(name: String?) = when (name) {
     "William" -> "Bill"
     null -> "Joker"
     else -> name.reversed().toUpperCase()
 }//如果对可控引用不单单是提取值二是根据引用做不同操作，最好使用when
+
+//2.6 使用?:和let代替if/else
+fun nickName6() {
+    var type = ""
+    type = type?.let { "Kotlin" } ?: "Java"
+}
 
 //3. is运算符与智能转换
 fun fetchMessage(msg: Any) = when (msg) {

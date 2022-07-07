@@ -2,7 +2,7 @@ package com.kotlincode.kreflection
 
 /**
  * 反射  TODO Kotlin的反射怎么跟Java不一样？？？
- * 1. 类饮用
+ * 1. 类引用
  *    最基本的最基本的反射功能是获取对 Kotlin 类的运行时引用 val c = MyClass::class
  * 2. 可调度的引用
  *    2.1 函数引用 看下面

@@ -47,7 +47,7 @@ fun createRunnable2(): Runnable {
 
 //1.4 单例模式，对象表达式 创建单例 ，Unit 并不是 类而是一个实例，不能通过Unit创建其它实例
 object Unit {
-    const val radiusInKM = 59000
+    const val radiusInKM = 59000 //编译时常量，编译器将 const val 属性的值内联到使用它们的位置。[描述](https://kotlinlang.org/docs/whatsnew11.html#constant-inlining)
     fun numberOfProcess() = Runtime.getRuntime().availableProcessors()
 }//在 object 名称 {} kotlin认为这是语句而不是表达式 ，使用对象表达式创建匿名内部类的实例
 

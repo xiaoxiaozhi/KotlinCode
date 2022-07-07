@@ -7,6 +7,9 @@ import kotlin.coroutines.*
  * 1. 使用suspend关键字修饰的函数叫作挂起函数，挂起函数只能在协程体内或其他挂起函数内调用。
  * 创建协程
  *
+ * suspendCoroutine 和 suspendCancellableCoroutine将回调转换为协程
+ * https://blog.csdn.net/zhaoyanjun6/article/details/122058124#suspendCancellableCoroutine_5
+ *
  */
 fun main() {
 
