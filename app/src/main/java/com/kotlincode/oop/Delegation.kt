@@ -8,34 +8,50 @@ import kotlin.reflect.typeOf
 
 /**
  * Kotlin Vocabulary | Kotlin 委托代理 - 谷歌开发者的文章 - 知乎 https://zhuanlan.zhihu.com/p/339765203
+ * kotlin 的委托本质是 java23种设计模式的 代理模式，委托比继承更加灵活，建议使用委托
  * 委托模式已被证明是实现继承的一个很好的替代方案
- * 委托
- * 1. 一个对象将它的一些职责委托或传递给另一个类的实例
- * 2. 委托比继承更加灵活，建议使用委托
- * 3. 在您无法继承特定类型时，委托模式就显得十分有用
- * 何时选择委托
- * 1. 如果你想用一个类的对象来代替另一个类的对象，请使用继承
- * 2. 如果你想让一个类的对象只使用另一个类的对象，请使用委托
+ * 1. 类委托
+ *    1.1 委托给类
+ *    1.2 委托给一个参数
+ *    1.3 处理方法冲突
+ *    1.4 处理多个委托之间的方法冲突
+ * 2. 属性委托
+ *    委托会负责处理对应属性 get与 set 函数的调用
+ *    2.1 惰性属性 lazy
+ *        执行传递给的 lambda 的第一个调用并记住结果。后续调用只返回记住的结果
+ *    2.2 可观察属性  Observable
+ *        每次给属性赋值都会调用Delegates.observable()，该方法有三个个参数，初始值、旧值、新值
+ *    2.3 条件委托 vetoable
+ *        lambda表达式返回一个boolean类型，通过表达式才能被赋值
+ *    2.4 委托给其它属性
+ *        顶级属性、同一个类的其它属性、另一个类的属性
+ *    2.5 在map中映射属性
+ *    2.6 提供委托
+ *
+ *
+ *
+ *
+ *
  *
  */
 fun main() {
 
-    //1. 委托给类
+    //1.1 委托给类
     val manager = Manager()
     manager.work()
-    //2. 委托给一个参数
+    //1.2 委托给一个参数
     Manager1(JavaProgrammer()).meeting()   //方法中调用委托实例
     Manager1(JavaProgrammer()).staff.work()//通过属性调用委托实例
     Manager1(JavaProgrammer()).work()      //调用委托方法 同 1
-    //3.1 处理方法冲突:委托与类中方法出现冲突
+    //1.3 处理方法冲突:委托与类中方法出现冲突
     println("---处理方法冲突1---")
     Manager2(JavaProgrammer()).staff.tackVacation()//通过参数调用委托的方法
     Manager2(JavaProgrammer()).tackVacation()//调用重写的方法
-    //3.2 处理方法冲突：多个委托之间方法冲突
+    //1.4 处理方法冲突：多个委托之间方法冲突
     println("---处理方法冲突2---")
     val dol = Manager3(Employee(), LifeAssistant())
     dol.fileTimeSheet()
-    //3.3 委托注意事项
+    //1. note 委托注意事项
     dol.work()
     dol.staff = Engineer()
     dol.work()// 打印的还是 Employee的 work()
@@ -43,15 +59,33 @@ fun main() {
     // 声明实际上是接受一个名为staff的参数并将其分配给一个名为staff的成员，
     // 就像这样：this.staff=staff。因此，对给定对象有两个引用：一个是在类内部作为幕后字段保存的，另一个是为委托保存的。
     // 但是，当我们将属性变为CSharpProgrammer的一个实例时，只修改了字段，而没有修改对委托的引用。
-    //4.1 委托变量
-    println("---委托变量---")
-    var comment: String by PoliteString("something")//对于某些常见类型的属性，每次用到都要手动实现它们，
-    // 不如将它们添加到库中通过by随时调用
-    println(comment)
-    comment = "stupid"
-    println(comment)
-    //4.2 委托属性
-    println("---委托属性---")
+
+    //2.1 惰性属性 lazy
+    println("---惰性属性lazy---")
+    val showTemperature: Boolean = true;//
+    val temperature by lazy { getTemperature("SanYa") }//第二次调用temperature 将不再打印 fetch temperature from website
+    if (showTemperature && temperature > 30) {
+        println("warm")
+    } else {
+        println("nothing")
+    }
+    println(temperature)// 一旦对lambda中的表达式求值，委托将记住结果，以后对该值的请求将接收保存的值。不会重新计算lambda表达式。
+    //2.2 可观察属性  Observable
+    println("---可观察属性Observable---")
+    var count by observable(0) { property, oldValue, newValue -> println("property:${property.name} oldValue:$oldValue newValue:$newValue") }
+//    count++  //报错  未知原因
+    count = 2
+
+    //2.3 vetoable委托
+    var num by vetoable(1) { _, oldValue, newValue -> oldValue < newValue }
+    num = 0
+    println("num = $num")
+
+    //2.4 委托给其它属性
+    //代码最下面
+
+    //2.5 在map中映射属性
+    println("---在map中映射属性---")
     val data = listOf(
         mutableMapOf<String, Any>(
             "title" to "Using delegation",
@@ -70,25 +104,17 @@ fun main() {
     forPost1.comment = "123"
     println(forPost1)
     println(forPost2)
-    //5. lazy 委托   只有在真正需要表达式的时候才执行表达式
-    println("---lazy委托---")
-    val showTemperature: Boolean = true;//
-    val temperature by lazy { getTemperature("SanYa") }
-    if (showTemperature && temperature > 30) {
-        println("warm")
-    } else {
-        println("nothing")
-    }
-    println(temperature)//5.1 一旦对lambda中的表达式求值，委托将记住结果，以后对该值的请求将接收保存的值。不会重新计算lambda表达式。
-    //6. Observable委托  监视对象中局部变量或属性的变化
-    println("---Observable委托---")
-    var count by observable(0) { property, oldValue, newValue -> println("property:${property.name} oldValue:$oldValue newValue:$newValue") }
-//    count++  //报错  未知原因
-    count = 2
-//    //7. vetoable委托 lambda表达式返回一个boolean类型，通过表达式才能被赋值
-    var num by vetoable(1) { _, oldValue, newValue -> oldValue < newValue }
-    num = 0
-    println("num = $num")
+
+    //2.6 提供委托
+    println("---提供委托---")
+    var comment: String by PoliteString("something")//属性可以将其 getter 和 setter 委托给另一个属性，
+    println(comment)
+    comment = "stupid"
+    println(comment)
+    //2.6 为只读属性提供委托
+    val comment1: String by PoliteString2("read_only")
+    println(comment1)
+
 }
 
 interface Worker {
@@ -184,7 +210,7 @@ class Manager3(var staff: Worker1, val assistant: Assistant) : Worker1 by staff,
     }
 }//当出现委托之间的冲突时，kotlin会 让类重写该方法
 
-//4.1 委托变量
+//2.6 提供委托
 class PoliteString(var content: String) {
     operator fun getValue(thisRef: Any?, property: KProperty<*>) =
         content.replace("stupid", "s****")
@@ -194,6 +220,13 @@ class PoliteString(var content: String) {
         content = value
     }
 }//使用注释operator进行标记，因为它们代表用于get和set的赋值运算符=
+
+//2.6 只读属性提供委托
+class PoliteString2(var content: String) {
+    operator fun getValue(thisRef: Any?, property: KProperty<*>) =
+        content.replace("stupid", "s****")
+
+}
 
 //4.2 委托属性
 class PoliteString1(var dataSource: MutableMap<String, Any>) {
@@ -221,3 +254,16 @@ fun getTemperature(city: String): Double {
     return 30.3
 }
 
+//2.4
+var topLevelInt: Int = 0
+
+class ClassWithDelegate(val anotherClassInt: Int)
+
+class MyClass(var memberInt: Int, val anotherClassInstance: ClassWithDelegate) {
+    var delegatedToMember: Int by this::memberInt
+    var delegatedToTopLevel: Int by ::topLevelInt
+
+    val delegatedToAnotherClass: Int by anotherClassInstance::anotherClassInt
+}
+
+var MyClass.extDelegated: Int by ::topLevelInt

@@ -136,7 +136,7 @@ class Person(private val first: String, private val last: String) {
 
 //1.9 定义方法
 class Student(private val first: String, private val last: String) {
-    @JvmName(" fullName")//使用internal和JvmName实现kotlin独占 https://blog.csdn.net/qq_23626713/article/details/90698534
+    @JvmName("fullName")//使用internal和JvmName实现kotlin独占 https://blog.csdn.net/qq_23626713/article/details/90698534
     internal fun fullName() =
         println("$first $last")//internal 修饰类的方法，表示这个类方法只适合当前module使用，如果其他module使用的话，会找不到这个internal方法或者报错
 
