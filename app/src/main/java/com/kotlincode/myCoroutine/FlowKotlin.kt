@@ -9,6 +9,8 @@ import kotlin.system.measureTimeMillis
  * https://zhuanlan.zhihu.com/p/114295411
  * [LiveData，StateFlow，SharedFlow对比](https://juejin.cn/post/7007602776502960165)
  * kotlin flow
+ * 一个挂起函数异步返回一个值，但我们想要返回多个值？这时候就要用到Flow
+ * Sequences yield(产出)一个值，forEach(遍历一个值)，Sequences不执行完，遍历就会一直等待是同步过程。与它相比
  * 1. 利用序列在不阻塞主线程情况下，一个一个返回元素
  * 2. Sequence 无法使用delay
  * 3. 背压问题在生产者的生产速率高于消费者的处理速率的情况下出现
@@ -21,21 +23,29 @@ private fun log(message: String) = println("[${Thread.currentThread().name}] $me
 
 fun main() {
     //1. 为什么 在协程中使用Flow而不是Sequence
-    runBlocking {
+    runBlocking{
         log("runBlocking")
         val f = withContext(Dispatchers.Default) {
-            flow { // flow builder
-                for (i in 1..5) {
-//        delay(100) // pretend we are doing something useful here
-                    log("flow $i")
-                    delay(1000)
-                    emit(i) // emit next value flow在不指定协程(flowOn)的情况下,逻辑代码和终端操作处于同意协程中，逻辑代码就算写在 Default 协程中，也不顶用
-                }
+//            flow { // flow builder
+//                for (i in 1..5) {
+//                    log("flow $i")
+//                    delay(1000)
+//                    emit(i) // emit next value flow在不指定协程(flowOn)的情况下,逻辑代码和终端操作处于同一协程中，逻辑代码就算写在 Default 协程中，也不顶用
+//                }
+//            }
+
+            sequence {
+                log("sequence---1")
+                yield(1)
+                log("sequence---2")
+                yield(2)
+
             }
         }
-//        withContext(Dispatchers.Default) {
-        f.collect { log("$it") }//flow逻辑代码执行协程，只能通过flowOn()指定，如果不指定flow逻辑代码运行在 终端操作所在的协程。例如f.collect()
-//        }
+//        f.collect { log("$it") }//flow逻辑代码执行协程，只能通过flowOn()指定，如果不指定flow逻辑代码运行在 终端操作所在的协程。例如f.collect()
+        f.forEach {
+            log("试试能不能异步----$it")
+        }
     }
     //2. Flow的几种创建
     println("-----createFlows------")
@@ -440,6 +450,7 @@ fun flatMapLatestFlow() {
             }
     }
 }
+
 //15 StateFlow
 fun stateFlow() {
     runBlocking {
