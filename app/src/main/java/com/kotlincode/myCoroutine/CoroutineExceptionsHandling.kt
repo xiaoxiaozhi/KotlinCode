@@ -9,7 +9,6 @@ import kotlinx.coroutines.*
  *     子协程未捕获到的异常将不会被重新抛出，而是一级一级向父作用域传递，这种异常传播将导致父父作用域失败，进而导致其子作用域的所有请求被取消。
  *     launch 在协程代码块中用try catch 才能捕获异常，注意在协程构建器外面try catch不能捕获异常
  *     async在结果 Deferred 对象中捕获所有异常 try{deferred.await()}catch{}因此给他用 CoroutineExceptionHandler没有效果。
- *     构建器launch、actor  和 async 、produce 作为根协程(不允许有父协程) 前者视异常为未捕获异常，后者的异常需要用户在 try{deferred.await()}catch{} 中捕获 TODO 翻译自官网 看不懂这一行？？？？
  * 2. CoroutineExceptionHandler
  *    如果 try-catch 不在协程代码块中，那么它不会重新抛出异常，而是传播到顶级协程/父协程的工作，导致应用程序崩溃。
  *    CoroutineExceptionHandler 上下文元素，未捕获异常的协程设置后，可在这里捕获。是由于协程结构化并发的特性的存在，子作用域的异常经过一级一级的传递，最后由CoroutineExceptionHandler进行处理

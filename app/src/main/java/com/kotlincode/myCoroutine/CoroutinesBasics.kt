@@ -22,7 +22,7 @@ import kotlin.system.measureTimeMillis
  *    “结构化并发”是指一种构建异步/并发计算的方法，以便保证子操作在其父操作之前完成，即在父操作范围之外不执行任何子操作。
  *    协程遵循结构化并发原则，这意味着新的协程只能在一个特定的 CoroutineScope 中启动，这个 CoroutineScope 限定了协程的生命周期。
  *    所有子协程都完成外部CoroutineScope才能结束，外部CoroutineScope停止，子协程都将停止
- *    并行与并发 并发是两个队列交替使用一台咖啡机，并行是两个队列同时使用两台咖啡机. 协程并发并不是同时执行几个协程二是按照协程产生的顺序执行(目前观察到的情况就是这样)
+ *    并行与并发 并发是两个队列交替使用一台咖啡机，并行是两个队列同时使用两台咖啡机. 协程并发并不是同时执行几个协程而是按照协程产生的顺序执行遇到挂起点函数阻塞当前协程，底层线程执行其它协程。这样实现交替使用线程
  * 3. 构建协程作用域
  *    3.1 coroutineScope{} 除了协程构建器提供的作用域之外，用coroutineScope也能构建。它是一个挂起点函数，创建一个协程作用域并挂起底层协程，直到所有的子协程都完成时才能结束
  *    3.2 MainScope{} 查看代码 CoroutineActivity.kt  运行在主线程 记得在onDestroy()中调用cancel()取消协程 实验发现在kt文件下运行报错
@@ -70,10 +70,11 @@ import kotlin.system.measureTimeMillis
  *    6.3.ATOMIC        不可取消的模式运行
  *    6.4.UNDISPATCHED  来最初在被调用上下文中运行，但在挂起点之后切换到launch接收到的上下文线程 ,类似 Dispatchers.Unconfined  代码在下面
  *
- * 7. 并发异步async
- *    如果用同步的话 r1 = {delay(10) 1} r2 = {delay(10) 2}  r1+r2   由于每个launch都要等待得到结果需要20毫秒的时间
+ * 7. 并发异步async  (我觉得名字应该叫并行异步更准确)
+ *    如果用同步的话 r1 = {delay(10) 1} r2 = {delay(10) 2}  r1+r2   由于每个launch都要等待得到结果需要20毫秒的时间。下面例子难一点但是更能理解协程的同步和异步
  *    以下是并发异步代码，只需要10毫秒。async 返回一个 Deferred ，执行deferred.wait() 挂起协程而不阻塞线程，直到获取值,而launch 返回一个 Job，不含任何结果
  *    deferred，它是job的子类，所以deferred也可以取消。
+ *
  * 8. 超时
  *     withTimeout(1000){}和withTimeoutOrNull(1000){} 挂起协程，超过一定时间就取消协程，执行完返回结果。前者最好用try catch捕获超时异常 后者不抛出超时异常用返回null代替
  *     8.1 超时释放资源
@@ -96,7 +97,8 @@ fun main() {
     println("1.协程基本概念-----")
     runBlocking {
         launch {
-            doWorld()//挂起函数
+            delay(1000L)
+            println("World!")
         }
         println("Hello")
     }
@@ -205,7 +207,8 @@ fun main() {
     undispatchedStart()
 
     //7.并发异步
-    println("7.---- async----")
+    println("7.---- async----试验发现这里执行错了，要在单独的Test.kt中执行才能看到效果")
+//    coroutineConcurrent()//这个例子发现launch 和 async基本一致，不同点在于能不能返回值
     coroutineAsync()// 调用async 得到deferred 对象，然后deferred.await()得到协程结果await方法会阻塞流程
     //8. 超时
     println("8.超时-------")
@@ -243,11 +246,6 @@ fun structuredConcurrent() {
         }
         Util.log("runBlocking done")
     }
-}
-
-suspend fun doWorld() {
-    delay(1000L)
-    println("World!")
 }
 
 suspend fun doWorld1() = coroutineScope {
@@ -424,10 +422,46 @@ suspend fun doSomethingUsefulTwo(): Int {
 //7. async
 fun coroutineAsync() {
     runBlocking {
-        val time = measureTimeMillis {
-            println("The answer is ${concurrentSum()}")
+        val async1 = async(Dispatchers.Default) { // root coroutine with launch
+            repeat(Int.MAX_VALUE) { }
+            println("async1")
         }
-        println("Completed in $time ms")
+        val async2 = async { // root coroutine with launch
+            println("async2")
+        }
+        println("runBlocking")
+
+        async2.await()
+//        yield()
+
+        println("---------")
+    }
+}
+
+// 这个例子我发现 launch 换成 async 结果一样，这两个的区别就是能不能返回值
+fun coroutineConcurrent() {
+    runBlocking {
+        val launch1 = launch(Dispatchers.Default) {
+            repeat(Int.MAX_VALUE) { }
+            println("launch1")
+        }
+        val launch2 = launch() {
+            println("launch2")
+        }
+        val launch3 = launch() {
+            println("launch3")
+        }
+        val launch4 = launch() {
+            println("launch4")
+        }
+        println("runBlocking")
+        // ①join挂起当前协程，(但并不阻塞底层线程)也就是runBlocking开启的那个协程。然后线程会按照协程生成顺序执行launch1和launch2。打印结果也可以看到launch1先执行然后launch2
+        //   如果launch1 设置了 其它线程 上下文元素 协程会先执行 其他线程上运行的协程
+        // ②yield挂起 ，设置了 Dispatch会并行执行，没设置的会根据生成顺序执行。
+        launch3.join()// 任意协程的join都可以
+//        yield()//
+//        launch2.join()
+        println("---------")
     }
 }
 

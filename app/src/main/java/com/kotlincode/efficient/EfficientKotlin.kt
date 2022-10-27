@@ -28,6 +28,6 @@ fun main() {
 operator fun Pair<Int, Int>.plus(other: Pair<Int, Int>) =
     Pair(first + other.first, second + other.second)//plus()，是+的专用方法名
 
-
+//中缀函数
 infix fun Circle.contains1(point: Point) =
     (point.x - cx).toDouble().pow(2) + (point.y - yx).toDouble().pow(2) < radius.toDouble().pow(2)

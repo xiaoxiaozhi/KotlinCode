@@ -29,11 +29,8 @@ import java.io.IOException
  * 4. MainScope
  *    MainScope创建一个作用域，设置了Dispatch.Main 和 SupervisorJob 两个上下文元素，mainScope.launch{}创建协程，
  *    在Activity销毁的时候在onDestroy中 调用mainScope.cancel() 销毁作用域内所有创建的子协程避免内存泄漏。 通过这种方式管理整个Activity的协程。
- *
- *
  * note：直接用 CoroutineScope(SupervisorJob()).launch{} 在.kt中开启不了协程，实际在Activity中就可以
  * note: 为什么在 runBlocking中{} 必须用 GlobalScope开启协程才能实现 ，官方展示效果。用launch{}或者 await()没用
- * TODO 为什么GlobalScope 作用域才能实现 文章描述的效果，。我用mainScope就没用？？？？？
  */
 private fun log(message: String) = println("[${Thread.currentThread().name}] $message")
 class CoroutineActivity : AppCompatActivity() {
@@ -41,21 +38,8 @@ class CoroutineActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_coroutine)
-//        coroutineThreadLocal()
-        CoroutineScope(Job()).launch {
+        val s = CoroutineScope(Job())
 
-            val launch1 = launch { // root coroutine with launch
-                repeat(3) { repeat(Int.MAX_VALUE) {} }
-                println("launch1")
-            }
-            val launch2 = launch { // root coroutine with launch
-                println("launch2")
-            }
-            println("runBlocking")
-            launch2.join()
-            println("---------")
-            launch1.join()
-        }
     }
 
     override fun onResume() {
@@ -88,16 +72,21 @@ class CoroutineActivity : AppCompatActivity() {
         }
         //2. CoroutineExceptionHandler
         val scope2 = CoroutineScope(Job())
-        scope2.launch(handler) {// 该例在作用域中设置或者您也可以在协程运行的作用域中设置 CoroutineScope(Job()+handler)
+        scope2.launch(handler) {// 该例在根协程中设置或者您也可以在开启协程的作用域中设置 例如CoroutineScope(Job()+handler)
             async {
                 throw Exception("Failed coroutine")
-            }
+            }.await()
+            //----------------------------
+//            async { throw Exception("Failed coroutine") }
+            //----------------------------
+//            launch { throw Exception("Failed coroutine") }
+            //以上这几种都能在CoroutineExceptionHandler中被捕获
         }
 
         //3. SupervisorJob
-        supervisor()
+//        supervisor()
         //3.1 监督作用域  的使用
-        supervisor1()
+//        supervisor1()
         //4. MainScope
         MainScope().launch {
             Util.log("MainScope")
