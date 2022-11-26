@@ -1,30 +1,35 @@
 package com.kotlincode.myCoroutine
 
+import kotlinx.coroutines.CoroutineName
 import kotlin.coroutines.*
 
 /**
- * 《深入理解kotlin协程》
- * 1. 使用suspend关键字修饰的函数叫作挂起函数，挂起函数只能在协程体内或其他挂起函数内调用。
- * 创建协程
- *
- * suspendCoroutine 和 suspendCancellableCoroutine将回调转换为协程
- * https://blog.csdn.net/zhaoyanjun6/article/details/122058124#suspendCancellableCoroutine_5
+ * [这个人对深入理解协程这本书，协程是怎么来的做了一些加工，帮助理解](https://aisia.moe/2018/02/08/kotlin-coroutine-kepa/)
+ * 这里的创建协程跟官网介绍的不太一样，讲的是协程源码里面协程怎么创建起来的。
+ * 1.createCoroutine创建协程
+ *   创建并启动一个协程十分简单，你只需要两件宝具：一个 suspend lambda，以及一个 Continuation：使用createCoroutine创建协程，这样你就得到了一个未启动的协程，然后调用 resume 扩展方法启动这个协程：
+ * 2.startCoroutine创建协程
+ *   与createCoroutine不同suspendLambda.startCoroutine(completion)创建并立即启动协程
  *
  */
 fun main() {
 
+    //1.createCoroutine创建协程
     val continuation = suspend {// suspend 修饰的挂起函数，也就是协程本体
-        println("In Coroutine. Thread ${Thread.currentThread()}")
+        Util.log("In suspend lambda")
         5
-    }.createCoroutine(object : Continuation<Int> { //object 是协程的回调
+    }.createCoroutine(object : Continuation<Int> {
 
         override fun resumeWith(result: Result<Int>) {
-            println("Coroutine End: $result ${Thread.currentThread()}")
+            result.onSuccess {
+                Util.log("resumeWith---onSuccess--result=$it")
+            }
         }
 
-        override val context = EmptyCoroutineContext
+        override val context = EmptyCoroutineContext+CoroutineName("diy")
     })
     continuation.resume(Unit)
+    //2.startCoroutine创建协程
     //fun <T> (suspend () -> T).startCoroutine(completion: Continuation<T>) 创建协程之后立即执行
 }
 

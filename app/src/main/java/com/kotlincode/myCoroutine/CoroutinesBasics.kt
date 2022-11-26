@@ -1,8 +1,12 @@
 package com.kotlincode.myCoroutine
 
+import com.kotlincode.isAlive
 import kotlinx.coroutines.*
 import org.jetbrains.annotations.TestOnly
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 import kotlin.system.measureTimeMillis
 
 /**
@@ -76,9 +80,10 @@ import kotlin.system.measureTimeMillis
  *    deferred，它是job的子类，所以deferred也可以取消。
  *
  * 8. 超时
- *     withTimeout(1000){}和withTimeoutOrNull(1000){} 挂起协程，超过一定时间就取消协程，执行完返回结果。前者最好用try catch捕获超时异常 后者不抛出超时异常用返回null代替
- *     8.1 超时释放资源
- *         withTimeout{}超时事件对于代码块运行是异步的，有可能在代码块完成之前就超时异常，所以我们要在finally中 把代码块的资源关闭
+ *    withTimeout(1000){}和withTimeoutOrNull(1000){} 挂起协程，创建一个新的作用域，超过一定时间就取消作用域，withTimeout会抛出一个异常导致被它挂起的协程因为异常而取消，withTimeoutOrNull如果超时不会抛出异常而是返回null.
+ *    withTimeout最好用try catch捕获超时异常, try catch 在withTimeout里面捕获还是外面捕获效果都一样
+ *    8.1 超时释放资源
+ *        withTimeout{}超时事件对于代码块运行是异步的，有可能在代码块完成之前就超时异常，所以我们要在finally中 把代码块的资源关闭
  *
  * 挂起点函数
  * 1.yield()方法不会导致任何显式延迟。这两种方法都为另一个挂起的任务提供了执行的机会。
@@ -88,9 +93,9 @@ import kotlin.system.measureTimeMillis
  * 5.withContext(指定上下文){}
  * 6.deferred.wait()
  * 7.withTimeoutOrNull(1000){}
- *
- * TODO [在协程中调用网络请求教程](https://kotlinlang.org/docs/coroutines-and-channels.html)
- * TODO  suspendCoroutine和suspendCancellableCoroutine
+ * attention:[在.kt文件中运行 witchContext(Dispatch.Main)会报错，原因是没有Looper.getMainLooper()](https://stackoverflow.com/questions/58303961/kotlin-coroutine-unit-test-fails-with-module-with-the-main-dispatcher-had-faile)
+ * attention:在runBlocking{ cancel()} 会报异常,加try catch也不管用。 Exception in thread "main" kotlinx.coroutines.JobCancellationException: BlockingCoroutine was cancelled; job=BlockingCoroutine{Cancelled}@4f063c0a
+ * TODO createCoroutine 和 startCoroutine
  */
 fun main() {
     //1.协程基本概念
@@ -215,7 +220,6 @@ fun main() {
     timeoutOrNull()//演示异步
     println("8.1 超时取消finally中取消资源-------")
     asynchronousTimeout()
-
 }
 
 //2. 结构化并发
@@ -485,8 +489,8 @@ suspend fun concurrentSum(): Int = coroutineScope {
 fun timeoutOrNull() {
     runBlocking {
         Util.log("runBlocking----")
-        val result = withTimeoutOrNull(1900) {//引发超时取消协程会报 TimeoutCancellationException
-//            throw Exception()
+//        val result = withTimeout(1900) {//引发超时异常 TimeoutCancellationException，异常向上扩散导致父协程被取消
+        val result = withTimeoutOrNull(1900) {//不会抛出异常，如果超时则会返回null
             repeat(20) {
                 delay(400)
                 Util.log("i = $it")
@@ -529,3 +533,6 @@ class Resource {
         acquired--
     } // Release the resource
 }
+
+
+

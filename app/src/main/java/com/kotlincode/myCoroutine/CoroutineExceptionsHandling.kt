@@ -13,9 +13,10 @@ import kotlinx.coroutines.*
  *    如果 try-catch 不在协程代码块中，那么它不会重新抛出异常，而是传播到顶级协程/父协程的工作，导致应用程序崩溃。
  *    CoroutineExceptionHandler 上下文元素，未捕获异常的协程设置后，可在这里捕获。是由于协程结构化并发的特性的存在，子作用域的异常经过一级一级的传递，最后由CoroutineExceptionHandler进行处理
  *    也就是说在CoroutineExceptionHandler被调用时，协程已经被取消
- * 3. SupervisorJob
+ * 3. SupervisorJob和supervisorScope
+ *    阻止异常向上传播
  *    使用SupervisorJob ，子协程的失败不会影响到其他子协程。SupervisorJob 不会取消自身或它的其他子协程，而且SupervisorJob 不会传播异常而是让它的协程处理。
- *    无论我们使用何种类型的Job，未捕获的异常最终都会被抛出。在Android中，不论它发生在哪个调度器中都会使App崩溃。常用做法是在根协程加入CoroutineExceptionHandler捕获异常
+ *    与.kt稍有不同在Android中，无论我们使用何种类型的Job，未捕获的异常最终都会被抛出使App崩溃。常用做法是在根协程加入CoroutineExceptionHandler捕获异常，需要注意的是，如果没有捕获异常，实验结果将于描述不符
  *    SupervisorJob只有在以下两种作用域中才会起作用：使用supervisorScope{...}或CoroutineScope(SupervisorJob())创建的作用域
  */
 fun main() {
@@ -24,15 +25,18 @@ fun main() {
 //    uncaughtException()
     //3.SupervisorJob
 
-        val scope = CoroutineScope(SupervisorJob())
-        scope.launch {
+//    with(CoroutineScope(Job())) {// 没有抛出异常，
+    with(CoroutineScope(SupervisorJob())) {//试验结果与上文描述一致，不过
+        launch {
             Util.log(" scope.launch1")
             throw IndexOutOfBoundsException()
         }
-        scope.launch {
+        launch {
             Util.log(" scope.launch2")
         }
         Util.log("runBlocking")
+    }
+
 
 }
 

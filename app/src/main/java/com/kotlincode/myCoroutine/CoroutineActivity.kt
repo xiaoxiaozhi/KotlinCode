@@ -5,6 +5,10 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.kotlincode.R
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.take
 import java.io.IOException
 
 /**
@@ -17,14 +21,17 @@ import java.io.IOException
  *     子协程未捕获到的异常将不会被重新抛出，而是一级一级向父作用域传递，这种异常传播将导致父父作用域失败，进而导致其子作用域的所有请求被取消。
  *     launch 在协程代码块中用try catch 才能捕获异常，注意在协程构建器外面try catch不能捕获异常
  *     async在结果 Deferred 对象中捕获所有异常 try{deferred.await()}catch{}因此给他用 CoroutineExceptionHandler没有效果。
+ *     当async作为根协程时，被封装到deferred对象中的异常才会在调用await时抛出。用GlobalScope演示
+ *     如果async作为一个子协程时，异常捕获同launch
  * 2. CoroutineExceptionHandler
  *    如果 try-catch 不在协程代码块中，那么它不会重新抛出异常，而是传播到顶级协程/父协程的工作，导致应用程序崩溃。
  *    CoroutineExceptionHandler 上下文元素，未捕获异常的协程设置后，可在这里捕获。是由于协程结构化并发的特性的存在，子作用域的异常经过一级一级的传递，最后由CoroutineExceptionHandler进行处理
  *    也就是说在CoroutineExceptionHandler被调用时，协程已经被取消
  *    只适用于launch构建的协程， 在作用域或根协程中设置上下文元素 才起作用
- * 3. SupervisorJob和监督作用域
+ * 3. SupervisorJob和supervisorScope
+ *    阻止异常向上传播
  *    使用SupervisorJob ，子协程的失败不会影响到其他子协程。SupervisorJob 不会取消自身或它的其他子协程，而且SupervisorJob 不会传播异常而是让它的协程处理。
- *    无论我们使用何种类型的Job，未捕获的异常最终都会被抛出。在Android中，不论它发生在哪个调度器中都会使App崩溃。常用做法是在根协程加入CoroutineExceptionHandler捕获异常
+ *    与.kt稍有不同在Android中，无论我们使用何种类型的Job，未捕获的异常最终都会被抛出使App崩溃。常用做法是在根协程加入CoroutineExceptionHandler捕获异常，需要注意的是，如果没有捕获异常，实验结果将于描述不符
  *    SupervisorJob只有在以下两种作用域中才会起作用：使用supervisorScope{...}或CoroutineScope(SupervisorJob())创建的作用域
  * 4. MainScope
  *    MainScope创建一个作用域，设置了Dispatch.Main 和 SupervisorJob 两个上下文元素，mainScope.launch{}创建协程，
@@ -39,6 +46,22 @@ class CoroutineActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_coroutine)
         val s = CoroutineScope(Job())
+        CoroutineScope(Job()).launch {
+            flow {
+                try {
+                    emit(1)
+                    emit(2)
+                    println("This line will not execute")
+                    emit(3)
+                }catch(e:Exception){
+                    println("Exception----$e")
+                }
+                finally {
+                    println("Finally in numbers")
+                }
+            }
+                .take(2).collect { println("tack----$it") }
+        }
 
     }
 
@@ -55,14 +78,21 @@ class CoroutineActivity : AppCompatActivity() {
         }
         //1.1 async捕获异常
         scope1.launch {
-            supervisorScope {
-                val deferred = async {
-                    throw IndexOutOfBoundsException("IndexOutOfBoundsException")
-                }
+            val deferred = GlobalScope.async {//当async作为根协程时，被封装到deferred对象中的异常才会在调用await时抛出
+                throw IndexOutOfBoundsException("IndexOutOfBoundsException")
+            }
+            try {
+                deferred.await()
+            } catch (e: Exception) {
+                Util.log("scope1.async -----${e.message}")
+            }
+
+            //如果async作为一个子协程时，异常捕获同launch
+            async {
                 try {
-                    deferred.await()
+                    throw IndexOutOfBoundsException("IndexOutOfBoundsException")
                 } catch (e: Exception) {
-                    Util.log("scope1.async -----${e.message}")
+                    Util.log("scope2.async -----${e.message}")
                 }
             }
         }
@@ -84,9 +114,9 @@ class CoroutineActivity : AppCompatActivity() {
         }
 
         //3. SupervisorJob
-//        supervisor()
+        supervisor()
         //3.1 监督作用域  的使用
-//        supervisor1()
+        supervisor1()
         //4. MainScope
         MainScope().launch {
             Util.log("MainScope")
@@ -111,34 +141,39 @@ class CoroutineActivity : AppCompatActivity() {
 
     //3. SupervisorJob
     private fun supervisor() {
-        runBlocking {
-            //TODO 实际测试 在 没有runBlocking和有runBlocking两种情况下 上下文设置Job 两个协程也都执行了，跟文章说的只有SupervisorJob 阻止异常向上传播。不知道为什么，也许viewModel.launch会不同
-            val scope = CoroutineScope(SupervisorJob())
-            scope.launch {
+        val coroutineEH = CoroutineExceptionHandler { _, exception ->
+            Util.log("CoroutineExceptionHandler got $exception with suppressed ${exception.suppressed.contentToString()}")
+        }
+        with(CoroutineScope(Job() + coroutineEH)) {//增加了异常捕获，实验结果和上文描述一致；如果没有异常捕获使用SupervisorJob还是Job 两个子协程都会执行
+            launch {
                 Util.log("SupervisorJob.launch1")
                 throw IndexOutOfBoundsException()
             }
-            scope.launch {
+            launch {
                 Util.log("SupervisorJob.launch2")
             }
         }
+
     }
 
     //3.1 supervisorScope
     private fun supervisor1() {
-        //TODO 实际测试  Util.log("scope.launch")没打印，另外如果把scope.launch 换成runBlocking 就只打印 scope.launch1。
-        val scope = CoroutineScope(Job())
-        scope.launch {
-            supervisorScope {
-                launch {
-                    Util.log("supervisorScope.launch1")
-                    throw IndexOutOfBoundsException()
+        val coroutineEH = CoroutineExceptionHandler { _, exception ->
+            Util.log("supervisor1 CoroutineExceptionHandler got $exception with suppressed ${exception.suppressed.contentToString()}")
+        }
+        with(CoroutineScope(Job() + coroutineEH)) {
+            launch {
+                supervisorScope() {
+                    launch {
+                        Util.log("supervisorScope.launch1")
+                        throw IndexOutOfBoundsException()
+                    }
+                    launch {
+                        Util.log("supervisorScope.launch2")
+                    }
                 }
-                launch {
-                    Util.log("supervisorScope.launch2")
-                }
+                Util.log("scope.launch")
             }
-            Util.log("scope.launch")//没打印
         }
     }
 }

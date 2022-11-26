@@ -11,7 +11,7 @@ package com.kotlincode.controlflow
  *    throw 表达式返回Nothing类型。此类型没有值，用于标记永远无法到达的代码位置。在您自己的代码中，可以使用 Nothing 来标记永远不会返回的函数:
  *    [翻译文章](https://zhuanlan.zhihu.com/p/26890263) TODO 有点复杂 待看
  * 4. 使用runCatching{}函数式处理错误
- *    源码比较简单看下就能明白
+ *    官方只有api介绍，[相关内容总结自](https://www.jianshu.com/p/a5d93495489c)
  *
  */
 fun main() {
@@ -32,8 +32,11 @@ fun main() {
     runCatching {
         getRandomNumber()
     }
-        .onSuccess { println(it) }
-        .onFailure { println(it.message) }
+        .onSuccess { println(it) }//成功时调用
+        .onFailure { println(it.message) }//失败时调用
+        .getOrElse { }
+    //.getOrNull()//成功就返回该值，失败就返回null
+    //还有其他方法之后待总结
 
 }
 

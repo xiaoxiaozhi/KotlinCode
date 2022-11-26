@@ -1,7 +1,12 @@
 package com.kotlincode.collections
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import android.os.Build
+import androidx.annotation.RequiresApi
+import com.kotlincode.myCoroutine.Util
+import com.kotlincode.myCoroutine.flowSimple
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collect
+import java.lang.Exception
 
 
 /**
@@ -15,8 +20,16 @@ import kotlinx.coroutines.runBlocking
  * 4. Set    无序集合
  * 5. Map    映射
  * 6. Sequences
-
+ *    官方文档比较简陋没有什么例子
+ *    与集合不同，序列不包含元素，它们在迭代时产生元素。当序列开始迭代，构建器执行。构建器每产生一个元素，就会通过中间操作、终端操作。
+ *    而集合是一次性产生所有元素，然后所有元素通过中间操作产生新的集合才会进行下一步中间操作直至终端操作。
+ *    序列的中间操作:和集合相同 (filter、map......)
+ *    序列的终端操作有:forEach 、to集合类
+ *
+ *    attention：序列的构建器和终端操作可能处于不同的线程和协程上面。当开始终端操作时，构建器会在终端操作的线程和协程上面运行。
+ *    TODO [集合转换操作](https://kotlinlang.org/docs/collection-transformations.html)尚未总结： Map、Zip、Associate、Flatten、String representation
  */
+@RequiresApi(Build.VERSION_CODES.N)
 fun main() {
     println("-----二值元组-----")
     pairFunction()
@@ -112,6 +125,7 @@ fun sets() {
 }
 
 //5. Map 映射
+@RequiresApi(Build.VERSION_CODES.N)
 fun maps() {
     //5.1 同列表一样Map也提供了可变和不可变接口
     val values = mapOf<String, String>("baidu" to "www.baidu.com", "sine" to "www.sine.com")
@@ -149,33 +163,65 @@ fun generateSequences() {
 
     //序列迭代，sequence执行hasNext，才会触发sequence内部逻辑，直到第一个yield为止
     val seq = sequence {
-        log("A1")
-        log("A1")
+        Util.log("A1")
         yield(1)
-        log("A2")
-        log("B1")
+        Util.log("A2")
+        Util.log("B1")
         yield(2)
-        log("B2")
-        log("Done")
+        Util.log("B2")
+        Util.log("Done")
     }
-    log("before sequence")
+    Util.log("before sequence")
     for (item in seq) {
-        log("Got $item")
+        Util.log("Got $item")
         break
     }
-    // sequence运行在Default线程
-    runBlocking(Dispatchers.Default) {
-        val s = sequence {
-            yield(1)
-//            kotlinx.coroutines.delay(1000) 被@RestrictsSuspension修饰过当SequenceScope作为扩展函数接受者的时候，其suspend函数内部不能调用其它CoroutineScope的suspend函数。
-            log("runBlocking-----sequence")
-            yield(2)
+    // 序列的计算过程处于它迭代的线程和协程上面
+    runBlocking() {
+        val words = "The quick brown fox jumps over the lazy dog".split(" ")
+        //convert the List to a Sequence
+        val wordsSequence = words.asSequence()
+        val lengthsSequence = wordsSequence.filter { Util.log("filter: $it"); it.length > 3 }
+            .map { Util.log("length: ${it.length}"); it.length }
+            .take(4)
+        println("Lengths of first 4 words longer than 3 chars")
+
+        newSingleThreadContext("aaa").use {
+            launch(it) {
+                println(lengthsSequence.toList())
+            }
         }
-        s.forEach { log("forEach------$it") }
     }
-}// 序列中的数据并不像其它集合一次性返回，而是计算一个，返回一个。
-// 序列的计算过程处于它所在的线程
+    // 取列取消
+    println("取列序列---------------")
+    runBlocking {
+        val seq = sequence {
+            repeat(Int.MAX_VALUE) {}
+            yield(1)
+            repeat(Int.MAX_VALUE) {}
+            yield(2)
+            repeat(Int.MAX_VALUE) {}
+            yield(3)
+            repeat(Int.MAX_VALUE) {}
+            yield(4)
+            repeat(Int.MAX_VALUE) {}
+            yield(5)
+            repeat(Int.MAX_VALUE) {}
+            yield(6)
+        }
+        launch(Dispatchers.Default) {
+            try {
+                withTimeout(10) {
+                    seq.forEach {
+                        if (isActive) {
+                            println(it)
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                println(e.message)
+            }
+        }
+    }
+}
 
-
-
-private fun log(message: String) = println("[${Thread.currentThread().name}] $message")

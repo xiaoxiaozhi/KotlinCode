@@ -11,8 +11,8 @@ import kotlin.reflect.typeOf
  * kotlin 的委托本质是 java23种设计模式的 代理模式，委托比继承更加灵活，建议使用委托
  * 委托模式已被证明是实现继承的一个很好的替代方案
  * 1. 类委托
- *    1.1 委托给类
- *    1.2 委托给一个参数
+ *    1.1 委托给类:要实现的接口 by 实例
+ *    1.2 委托给一个参数：B(c:C):A by C {一些覆写自A的方法} B和C都实现了 接口A，参数委托就是 B的实例 调用的方法都是C的实现。
  *    1.3 处理方法冲突
  *    1.4 处理多个委托之间的方法冲突
  * 2. 属性委托
@@ -27,12 +27,6 @@ import kotlin.reflect.typeOf
  *        顶级属性、同一个类的其它属性、另一个类的属性
  *    2.5 在map中映射属性
  *    2.6 提供委托
- *
- *
- *
- *
- *
- *
  */
 fun main() {
 
@@ -143,8 +137,7 @@ class CSharpProgrammer : Worker {
 }
 
 //1. 委托给类    要实现的接口 by 实例
-class Manager :
-    Worker by JavaProgrammer()//Manager不用自己去实现Worker接口，委托给JavaProgrammer实现。无法访问委托实例，委托给参数很好的解决了这个问题
+class Manager : Worker by JavaProgrammer()//Manager不用自己去实现Worker接口，委托给JavaProgrammer实现。无法访问委托实例，委托给参数很好的解决了这个问题
 
 //2. 委托给参数
 class Manager1(val staff: Worker) : Worker by staff {

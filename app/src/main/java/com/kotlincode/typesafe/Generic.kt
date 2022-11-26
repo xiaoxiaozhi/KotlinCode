@@ -4,14 +4,16 @@ import java.io.Closeable
 import java.io.StringWriter
 
 /**
+ * 基本和java泛型一致，回顾请参考java泛型java 通配符是? kotlin是 *； 多下界表示 java是 <? super 类名&类名> kotlin 是 where T : Closeable, T : Appendable
+ * 另外多了一个关键字reified
  * 泛型
  */
 fun main() {
     //1. 函数参数类型不变性(Array<T>和List<out E>)
     val bananas = arrayOf<Banana>()
-//    receiveFruit(bananas)// 同java一样不允许传递，泛型类型不变性决定，理由：一筐子香蕉不是从一筐子水果继承来的
+//    receiveFruit1(bananas)// 同java一样不允许传递，泛型类型不变性决定，理由：一筐子香蕉不是从一筐子水果继承来的
     val orange: List<Orange> = listOf();
-    receiveFruit(orange)//限制了数组，但没有限制列表,原因是数组接口和列表接口后者有向下兼容List<out E>
+    receiveFruit2(orange)//限制了数组，但没有限制列表,原因是数组接口和列表接口后者有向下兼容List<out E>
     //2. 协变
     val apples = Array<Apple>(3) { _ -> Apple() }//用不到的参数用下划线省略
     val fruits = Array<Fruit>(3) { _ -> Fruit() }
@@ -34,6 +36,9 @@ fun main() {
     //6. 具体化类型参数 reified
     println(findFirst<NonFiction>(listOf(NonFiction("learn to code"), Fiction("game"))).name)
 
+    val numbers: MutableList<in Int> = mutableListOf<Number>()
+    numbers.add(100)
+    println("类型----${numbers[0]?.javaClass?.simpleName}")
 
 }
 
@@ -48,11 +53,11 @@ class Orange : Fruit()
 class Apple : Fruit()
 class Grape : Fruit()
 
-fun receiveFruit(fruit: Array<Fruit>) {
+fun receiveFruit1(fruit: Array<Fruit>) {
     println("Num of fruit:${fruit.size}")
 }
 
-fun receiveFruit(fruit: List<Fruit>) {
+fun receiveFruit2(fruit: List<Fruit>) {
     println("Num of fruit:${fruit.size}")
 }
 

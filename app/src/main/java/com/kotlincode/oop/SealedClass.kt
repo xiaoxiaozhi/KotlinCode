@@ -3,7 +3,7 @@ package com.kotlincode.oop
 import java.lang.RuntimeException
 
 /**
- * sealed类
+ * sealed 密封类
  * 1. Kotlin的sealed类对于同一个文件中定义的其他类进行扩展是开放的，但是对于其他的类——也就是final或者不是open的类，则是关闭的。
  * 2. sealed类的构造函数默认是private, 只能被本文件中定义的类继承
  */
