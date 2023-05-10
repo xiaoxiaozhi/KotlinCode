@@ -2,11 +2,11 @@ package com.kotlincode.myCoroutine
 
 import android.app.usage.UsageEvents
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.*
 import kotlinx.coroutines.channels.ProducerScope
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.*
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import java.lang.Exception
 import java.net.ResponseCache
 import java.net.Socket
@@ -35,7 +35,7 @@ import kotlin.system.measureTimeMillis
  *   toList() toSet() asSequence() :转换成集合
  *   first(): 仅返回流发出的第一个元素，然后取消流的集合。如果流为空则引发 NoSuchElementException
  *   single()：适用于只有一个元素的流，返回流仅有的一个元素，如果是空流引发 NoSuchElementException，如果流能产生多个元素引发 IllegalStateException
- *   reduce():将所提供的操作应用于集合元素并返回积累的结果 例如 (a,b,c,d,e,f) 1号元素和2号元素 操作  结果再和 3号元素操作 比如 阶乘的运算过程就和reduce一致
+ *   reduce():将所提供的操作应用于集合元素并返回积累的结果 例如 (a,b,c,d,e,f) 1号元素和2号元素操作结果再和 3号元素操作 比如 阶乘的运算过程就和reduce一致
  *   fold(initValue)：与reduce相比有初始值，功能类似
  *   collect:挂起点函数，需要在协程中执行
  *   launchIn:对 scope.launch{flow.collect()}的封装，返回job。方便取消
@@ -49,7 +49,7 @@ import kotlin.system.measureTimeMillis
  *   在一个流上使用一个buffer()操作符，生产端产生和终端消费同时进行，而不是按顺序运行它们: 生产端测试发现缓冲区大小66个元素.生产端和终端操作不再一个协程。 缓冲区默认大小64，也可以设置buffer(自定义大小) buffer(0)代表缓冲区大小1. 缓冲区是从0开始计数
  *   attention:生产端和终端属于不同的协程 buffer创建了一个协程？？？flowOn让生产端和终端操作处于不同的协程和线程
  * 8.合并
- *   conflate和buffer一样也是开辟一个缓冲区，让生产端和终端并行。不同的是，生产端只消费最新的元素。(叫合并感觉不合适)
+ *   conflate和buffer一样也是开辟一个缓冲区，让生产端和终端并行。不同的是，生产端只消费最新的元素。最近emit的元素 (叫合并感觉不合适)
  *   collectLatest另一种合并方法，生产端每次发出新值时取消之前的终端操作并重新启动终端。查看下面代码就会发现终端操作每次都执行，由于终端操作耗时长每次都执行不完
  *   这两种方法都能解决背压
  *   attention：collectLatest 生产端和终端处于统一线程但总是更换不同的协程，这是为什么？？？
@@ -89,10 +89,12 @@ import kotlin.system.measureTimeMillis
  *   [赵彦军 使用callbackFlow](https://blog.csdn.net/zhaoyanjun6/article/details/121840157) 看medium觉得赵彦军写的没抓住重点，到底是什么？？？
  *   [medium](https://proandroiddev.com/callbacks-in-a-mad-world-wrapping-your-old-callback-listeners-with-callbackflow-863f9e146281)
  *   底层使用channel来进行中转，首先通过produce创建一个ReceiveChannel。然后在调用collect的时候，在将channel的值取出来emit出去。
- *   callbackFlow 是一个流构建器，旨在将基于回调的类型转换为基于流的类型
+ *   callbackFlow 是一个冷流构建器，旨在将基于回调的类型转换为基于流的类型
  *   callbackFlow 允许使用 send 函数从不同的 CoroutineContext 发出值，或者在 offer 函数的协程之外发出值。
  *   在内部，callbackFlow 使用一个通道，这在概念上非常类似于阻塞队列。通道配置了一个容量，即可以缓冲的最大元素数。在 callbackFlow 中创建的通道的默认容量为64个元素。
  *   当您尝试向完整通道添加新元素时，send 将挂起生成器，直到有空间容纳新元素为止，而 offer 不会将该元素添加到通道并立即返回 false。
+ *   attention：在callbackFlow末尾必须使用awaitClose，否则报错java.lang.IllegalStateException: ‘awaitClose { yourCallbackOrListener.cancel() }’ should be used in the end of callbackFlow block.
+ *              手动调用close()或者协程取消才会调用 awaitClose{}。否则就会一直处于运行状态不会结束。
  *15.channelFlow
  *   kotlin官网和android官网都没有描述
  *   [来自medium](https://medium.com/mobile-app-development-publication/kotlins-flow-channelflow-and-callbackflow-made-easy-5e82ce2e27c0)
@@ -106,12 +108,13 @@ import kotlin.system.measureTimeMillis
  *   [来自掘金](https://juejin.cn/post/6937138168474894343)
  *   感觉看API描述就够了
  *   StateFlow 和 SharedFlow 是 Flow API，允许数据流向多个使用方发出值。就是支持一对多collect。StateFlow是SharedFlow的子类
- *   StateFlow是SharedFlow的特殊化版本，replay固定为1，缓冲区大小默认为0。‘ TODO 有channel了为什么还要用这个？？？
+ *   StateFlow是SharedFlow的特殊化版本，replay固定为1，缓冲区大小默认为0。貌似要代替Channel，因为在最佳实践的例子中已经找不到channel
  *   16.1 SharedFLow
- *        SharedFlow是一种热流，以广播方式在所有收集器之间共享发出值，以便所有collect都接收到值。与flow不同，它是冷流，每次调用collect都会重新启动一遍(flow{重新执行一遍})
+ *        SharedFlow是一种热流，以广播方式在所有收集器之间共享发出值，以便所有collect都接收到值。与flow不同，flow是冷流，每次调用collect都会重新启动一遍(flow{重新执行一遍})
  *        SharedFlow永远不会完成也就是说 collect 一直会挂起所处协程, 在没有collect的时候 emit会一直发送，当所有数据都发送完，此时再调用collect将一个数据都收集不到
  *        只能通过MutableSharedFlow<>创建SharedFlow，通过emit发送数据所有collect收到数据前挂起协程，collect接收数据
- *        MutableSharedFlow(replay,共享流在其重播缓存中保存特定数量的最新值。每个新订阅者首先从重播缓存获取值，然后获取新的发出值。当前重播缓存的快照可以通过 replayCache 属性获得，
+ *        MutableSharedFlow(
+ *        replay,                  共享流在其重播缓存中保存特定数量的最新值。每个新订阅者首先从重播缓存获取值，然后获取新的发出值。当前重播缓存的快照可以通过 replayCache 属性获得，
  *                                 并且可以使用 MutableSharedFlow.resetReplayCache 函数重置它。
  *        extraBufferCapacity,     缓冲池容量 = replay + extraBufferCapacity  onBufferOverflow策略是根据这个值触发的
  *        onBufferOverflow         当缓冲区满了时候的策略，默认 SUSPENDED 挂起emit，至少有一个collect的情况下才会触发onBufferOverflow策略在没有订阅方的情况下，
@@ -134,10 +137,10 @@ import kotlin.system.measureTimeMillis
  *        作为MutableSharedFlow 和 MutableStateFlow的替代办法，shareIn、stateIn能将任意冷流转化成热流
  *        stateIn(
  *        scope: CoroutineScope, flow 生产者所在的协程作用域
- *        started: SharingStarted, Eagerly：急切模式，没有collect 流就已经启动,如果转成StateFLow，当调用collect能收到最新的值，如果转成SharedFlow，replay=0 当调用collect 收不到值，replay>0 能收到值
- *                                 Lazily：在第一个订阅者出现之后启动上游流，这保证第一个订阅者获得所有发出的值，而后续订阅者只保证获得最新的重播值。即使所有订阅者都消失了，上游流仍然处于活动状态，但是只有最近的重播值在没有订阅者的情况下被缓存。
- *                                 WhileSubscribed：只要存在collect流始终保持在启动状态，直到所有collect都被取消也就是说collect所处协程取消
- *       initialValue:初始值， 如果是 shareIn 这里就是replay
+ *        started: SharingStarted.Eagerly：急切模式，没有collect 流就已经启动,如果转成StateFLow，当调用collect能收到最新的值，如果转成SharedFlow，replay=0 当调用collect 收不到值，replay>0 能收到值
+ *                               .Lazily：在第一个订阅者出现之后启动上游流，这保证第一个订阅者获得所有发出的值，而后续订阅者只保证获得最新的重播值。即使所有订阅者都消失了，上游流仍然处于活动状态，但是只有最近的重播值在没有订阅者的情况下被缓存。
+ *                               .WhileSubscribed：只要存在collect流始终保持在启动状态，直到所有collect都被取消也就是说collect所处协程取消
+ *        initialValue:初始值， 如果是 shareIn 这里就是replay
  *        )
  *--------------------------------------------------------------------------------------------------------------
  * * Sequences forEach(遍历一个值)，yield(产出)一个值，Sequences不执行完，遍历就会一直等待是同步过程。与它相比
@@ -193,30 +196,40 @@ fun main() {
     //13. 启动流
     flowLaunchIn()
     //14.callbackFlow
-    runBlocking {
-        callbackFlow<SocketEvent> {
-            val socketListener = object : WebSocketListener() {
-                override fun onMessage(webSocket: Socket, text: String) {
-//                    send(SocketEvent.StringMessage(text))
-//                    trySend(SocketEvent.StringMessage(text))
-                }
-
-                override fun onOpen(webSocket: Socket, response: ResponseCache) {
-                    super.onOpen(webSocket, response)
-
-                }
-
-                // Other callback mehthods
-            }
-
-            // Add the listener object to our socket instance
-            attachWebSocketListener(socketListener)
-//            awaitClose { socket.cancel() }
-        }
-
-    }
+//    runBlocking {
+//        callbackFlow<SocketEvent> {//TODO 冷流
+//            val socketListener = object : WebSocketListener() {
+//                override fun onMessage(webSocket: Socket, text: String) {
+////                    sendString()
+////                    send(SocketEvent.StringMessage(text))
+//                    trySend(SocketEvent.StringMessage(text))//发送不成功返回失败的值。 send成不成功都不返回
+////                      offer()//可以在非生产端的协程内调用。 废弃API使用trySend代替,trySend还有这个特性吗？
+////                    sendBlocking()//使用trySendBlocking代替
+////                    trySendBlocking(SocketEvent.StringMessage(text))//看文档好像是在runBlocking中调用，用作测试用
+//                }
+//
+//                override fun onOpen(webSocket: Socket, response: ResponseCache) {
+//                    super.onOpen(webSocket, response)
+//                }
+//
+//
+//            }
+//
+//            // Add the listener object to our socket instance
+//            attachWebSocketListener(socketListener)
+////            close()
+//            awaitClose {
+////                yourCallbackOrListener.cancel()// 官网就是这样写的，要求释放 listener
+//            }//手动调用close()或者协程取消才会调用 awaitClose{}
+//        }.catch {
+//            //捕获生产端的异常
+//        }.collect {
+//            println("callbackFlow----collect")
+//        }
+//
+//    }
     //15.channelFlow
-    println("-----channelFlow------")
+    println("-----15. channelFlow------")
     runBlocking {
         channelFlow {
             for (i in 1..5) {
@@ -238,7 +251,7 @@ fun main() {
             yield()
             repeat(5) {
                 Util.log("emit----$it")
-                _events.emit("$it") // 至少一个collect的情况下才会挂起直到所有collect都接收导数据
+                _events.emit("$it") // 至少一个collect的情况下才会挂起直到所有collect都接收到数据
 //                _events.tryEmit("$it").also(::println)//缓冲池必须大于0 (replay + extraBufferCapacity>0)否则发送数据collect接收不到
             }
 //                _events.resetReplayCache()//清空重播参数
@@ -249,28 +262,29 @@ fun main() {
                     delay(1000)
                     Util.log("#$num---value=$value")
                 }
+//                println("SharedFlow 的终端 永远会处于挂起状态--------")
             }
         }
-
     }
     //16.2 StateFlow
     runBlocking {
-        val selected = MutableStateFlow<Int>(1)
+        val _selected = MutableStateFlow<Int>(1)
+        val selected = _selected.asStateFlow()
         repeat(2) { index ->
             launch {
 //                delay(1200)开启后由于只接收最新值 value =1 就接受不到了
                 selected.collect {
-                    Util.log("#$index collect-----$it")
+                    Util.log("StateFlow #$index collect-----$it")
                 }
-                Util.log("#$index end")
+                Util.log("StateFlow #$index end")
             }
         }//在子线程中得到值，因为StateFLow是热流值被主动推送给在主线程中的collect，多个collect同时接收到值，只接收最新的值
 
         launch(Dispatchers.Default) {
             delay(1000)
-            selected.update { 2 }
+            _selected.update { 2 }
             delay(1000)
-            selected.update { 3 }
+            _selected.update { 3 }
         }
     }
     //16.3 shareIn、stateIn将冷流变成热流

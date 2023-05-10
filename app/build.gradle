@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'kotlinx-serialization'
 }
 
 android {
@@ -49,4 +50,12 @@ dependencies {
 //    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2'
 //    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.2'
     implementation 'com.beust:klaxon:5.5'
+    //okhttp3
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
+    //序列化
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1'
+    //注解处理器
+    annotationProcessor 'com.google.auto.service:auto-service:1.0'
+    implementation 'com.google.auto.service:auto-service:1.0'
 }

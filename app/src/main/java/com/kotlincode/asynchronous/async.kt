@@ -112,6 +112,7 @@ suspend fun awaitGetData(): Date =
         }
 //        addListener(callback)// 调用接口，里面触发回调
         // 结束suspendCancellableCoroutine块的执行，直到在任一回调中调用continuation参数
+//        continuation.invokeOnCancellation { api.unregister(callback) }// 这个代码是 回调执行完调用，还是continuation.cancel()事后调用
     }
 
 interface NetCallback {

@@ -55,6 +55,7 @@ fun main() {
     for (i in 5 downTo 1) {
     }//反向迭代
     for (i in 0..5 step 2) {
+        println("step is 2 i=$i")
     }//以任意步长迭代  024
     for (value in 1 until 5) print("$value ")  //until 前闭后开区间
     (1..5).contains(2)// 判断数字是否在范围内
