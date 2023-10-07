@@ -1,5 +1,6 @@
 package com.kotlincode.efficient
 
+import java.util.Locale
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 import kotlin.random.Random
@@ -24,7 +25,7 @@ fun main() {
 
     val result = "RESULT"
     //2. lambda被当做参数传入 没有this
-    result.let { it.toLowerCase() }              //返回lambda结果
+    result.let { it.lowercase(Locale.ROOT) }              //返回lambda结果
     result.also { println() }                    //返回接收者
     //2.1 明确接收方 有this
     result.run { println(this.javaClass.name) }  //返回lambda结果

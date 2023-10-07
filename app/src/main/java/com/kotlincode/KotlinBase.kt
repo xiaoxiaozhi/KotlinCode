@@ -67,10 +67,13 @@ fun main() {
 
 //1. 相等性检查 ==和===
 fun equality() {
-    //1.1 == 值相等
+    //1.1 == 值相等 或 使用equals 比较值
     println("hi" == "hi")//  true 类似java 中的equals，但是kotlin的==更好能够处理null，kotlin的==运算符实际是equals方法的映射，点进去发现是equals的源码
     println("hi" == null)//  false
-    //1.2 === 引用比较 两个引用是否相等
+    //1.2 === 引用比较 比较地址
+
+    //[Java中的equals()方法](https://blog.csdn.net/changshuchao/article/details/86714875)
+    //java中== 比较两个对象的的内存地址 equals 比较值
 
 }
 
