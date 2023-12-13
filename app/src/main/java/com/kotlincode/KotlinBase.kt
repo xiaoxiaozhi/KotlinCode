@@ -69,6 +69,7 @@ fun main() {
 fun equality() {
     //1.1 == 值相等 或 使用equals 比较值
     println("hi" == "hi")//  true 类似java 中的equals，但是kotlin的==更好能够处理null，kotlin的==运算符实际是equals方法的映射，点进去发现是equals的源码
+    println("hi" === "hi")
     println("hi" == null)//  false
     //1.2 === 引用比较 比较地址
 
@@ -89,6 +90,15 @@ fun tryExpr(bloweUp: Boolean): Int {
     } finally {
         println("finally执行了，但是表达式的值只取try或者catch最后一个结果")
         5
+    }
+}
+
+class Foo {
+    lateinit var lateinitVar: String
+    fun initializationLogic() {
+        println("isInitialized before assignment: " + this::lateinitVar.isInitialized)// 为什么只有在方法调用之下才有isInitialized
+        lateinitVar = "value"
+        println("isInitialized after assignment: " + this::lateinitVar.isInitialized)
     }
 }
 

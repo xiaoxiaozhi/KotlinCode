@@ -171,6 +171,7 @@ fun generateSequences() {
         Util.log("B2")
         Util.log("Done")
     }
+
     Util.log("before sequence")
     for (item in seq) {
         Util.log("Got $item")

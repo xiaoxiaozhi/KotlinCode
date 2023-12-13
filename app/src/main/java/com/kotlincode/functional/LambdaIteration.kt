@@ -19,7 +19,7 @@ fun main() {
     (1..10).filter { it % 2 == 0 }.forEach(::print)//内部迭代
     //2. reduce()
     println("\n---reduce---")
-    val result = people.filter { it.age > 20 }.map { it.firstName }.reduce { acc, s -> "$acc,$s" }
+    val result = people.filter { it.age > 20 }.map { it.firstName }
     println(result)// reduce 传入两个参数 acc是前面参数的结果，s是下一个参数
     //2.1 sum
     println("sum = ${people.map { it.age }.sum()}")//专用的reduce操作sum()

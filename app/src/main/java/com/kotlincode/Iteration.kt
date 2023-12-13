@@ -7,6 +7,7 @@ import java.time.LocalDate
 
 /**
  * 外部迭代和参数选配
+ * 在foreach{}中删除元素会报错需要使用迭代器
  */
 fun main() {
     ranges()
@@ -15,6 +16,11 @@ fun main() {
     println("")
     whenFunction()
     println(systemInfo())
+    // 在迭代器中遍历的同时删除元素避免报错
+    val s = mutableListOf<String>("1", "2", "3", "4", "5", "6", "7")
+    while (s.iterator().hasNext()) {
+        s.remove(s.iterator().next().apply(::print))
+    }
 }
 
 //1.范围类 ranges

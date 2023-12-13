@@ -11,6 +11,11 @@ package com.kotlincode.collections
  *       若要为集合排序定义自定义顺序，您可以使用sortedWith ()函数提供自己的比较器
  *   1.5 翻转顺序 reversed() 和asReversed() 返回原始集合的反转后的副本，后者不同的是，如果原始集合有修改，会反应在副本集合上
  *   1.6 随机排序 shuffled()
+ *   ---------------------------来自网络--------------------
+ *   1.7 多级排序
+ *       非常方便 用有没有- 来确定升序还是降序， 注意 不可改变集合用 sortWith排序  可改变集合用sortedWith排序。
+ *
+ *
  */
 fun main() {
     kotlinSort()
@@ -44,6 +49,15 @@ fun kotlinSort() {
     //1.6 随即排序
     val numbersss = listOf("one", "two", "three", "four")
     println(numbersss.shuffled())//每次结果都不一样
+
+    //1.7 多级排序
+    val sortedList = personList.sortedWith(compareBy(
+        { it.name }, // 按姓名升序
+        { -it.age }, // 按年龄降序
+        { it.height } // 按身高升序
+    ))
+
+    sortedList.forEach { println(it) }
 }
 
 class Version(val major: Int, val minor: Int) : Comparable<Version> {
@@ -53,3 +67,13 @@ class Version(val major: Int, val minor: Int) : Comparable<Version> {
         else -> 0
     }
 }
+
+val personList = listOf(
+    Person("John", 30, 175),
+    Person("Alice", 25, 165),
+    Person("Bob", 25, 180),
+    Person("John", 25, 180),
+    Person("Alice", 30, 170)
+)
+
+data class Person(val name: String, val age: Int, val height: Int)

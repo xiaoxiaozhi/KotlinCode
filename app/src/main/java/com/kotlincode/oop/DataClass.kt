@@ -2,7 +2,7 @@ package com.kotlincode.oop
 
 /**
  * 数据类
- * 1.data class 的属性最好都定义在构造函数中，使用val修饰
+ * 1.data class 的属性最好都定义在构造函数中，使用val修饰，修改数据，对象的地址也会改变切记
  * 2.data class 必须是final 不能被继承
  * 3.Kotlin将自动为构造函数中的属创建equals()、hashCode()和toString()方法
  * 4.主构造函数至少定义一个属性
