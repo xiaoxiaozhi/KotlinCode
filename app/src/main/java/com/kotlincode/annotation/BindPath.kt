@@ -1,7 +1,6 @@
 package com.kotlincode.annotation
 
-import java.lang.annotation.ElementType
-import java.lang.annotation.RetentionPolicy
+import kotlin.String
 
 /**
  * [kotlin的注解处理器和java不一样，霍丙乾老师的课程](https://www.bilibili.com/video/BV1MM411w7fR/?vd_source=9cc1c08c51cf20bda524430137dc77bb)

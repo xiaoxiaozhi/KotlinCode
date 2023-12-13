@@ -1,16 +1,10 @@
 package com.kotlincode.myCoroutine
 
-import android.app.usage.UsageEvents
+import kotlin.String
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.*
-import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.flow.*
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import java.lang.Exception
-import java.net.ResponseCache
-import java.net.Socket
-import kotlin.system.measureTimeMillis
 
 /**
  * https://zhuanlan.zhihu.com/p/114295411

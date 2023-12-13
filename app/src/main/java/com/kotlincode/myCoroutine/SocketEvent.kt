@@ -1,5 +1,7 @@
 package com.kotlincode.myCoroutine
 
+import kotlin.String
+
 sealed class SocketEvent {
     object OpenEvent : SocketEvent()
     data class CloseEvent(val code: Int, val reason: String) : SocketEvent()

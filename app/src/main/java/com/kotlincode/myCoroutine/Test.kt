@@ -1,7 +1,6 @@
 package com.kotlincode.myCoroutine
 
-import android.os.SystemClock
-import com.beust.klaxon.Klaxon
+import kotlin.String
 import kotlinx.coroutines.*
 import kotlin.system.measureTimeMillis
 

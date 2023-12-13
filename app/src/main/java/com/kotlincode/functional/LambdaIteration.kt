@@ -1,5 +1,7 @@
 package com.kotlincode.functional
 
+import kotlin.String
+
 
 /**
  * 用lambda表达式实现内部迭代

@@ -1,5 +1,6 @@
 package com.kotlincode.util
 
+import kotlin.String
 import java.text.DecimalFormat
 
 object DigitUtils {

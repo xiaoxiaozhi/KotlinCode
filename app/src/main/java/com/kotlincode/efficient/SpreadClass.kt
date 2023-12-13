@@ -1,5 +1,6 @@
 package com.kotlincode.efficient
 
+import kotlin.String
 import java.net.URL
 import kotlin.math.pow
 

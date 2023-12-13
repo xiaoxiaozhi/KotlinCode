@@ -1,5 +1,7 @@
 package com.kotlincode.oop
 
+import kotlin.String
+
 /**
  * 数据类
  * 1.data class 的属性最好都定义在构造函数中，使用val修饰，修改数据，对象的地址也会改变切记

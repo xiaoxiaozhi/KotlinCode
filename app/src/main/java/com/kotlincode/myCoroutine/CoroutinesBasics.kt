@@ -1,12 +1,8 @@
 package com.kotlincode.myCoroutine
 
-import com.kotlincode.isAlive
+import kotlin.String
 import kotlinx.coroutines.*
-import org.jetbrains.annotations.TestOnly
-import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 import kotlin.system.measureTimeMillis
 
 /**

@@ -1,5 +1,7 @@
 package com.kotlincode.oop
 
+import kotlin.String
+
 /**
  * 面向对象
  * 1. 伴生对象

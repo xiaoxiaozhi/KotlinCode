@@ -1,6 +1,6 @@
 package com.kotlincode.oop
 
-import java.io.Closeable
+import kotlin.String
 
 /**
  * 泛型类

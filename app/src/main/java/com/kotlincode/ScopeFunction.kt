@@ -1,8 +1,7 @@
 package com.kotlincode.efficient
 
+import kotlin.String
 import java.util.Locale
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
 import kotlin.random.Random
 
 /**

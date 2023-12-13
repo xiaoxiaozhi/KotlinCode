@@ -1,5 +1,6 @@
 package com.kotlincode.util
 
+import kotlin.String
 import java.util.*
 
 class DateUtil(val number: Int, val tense: Tense) {

@@ -1,6 +1,7 @@
 package com.kotlincode.test
 
-import android.os.SystemClock
+import kotlin.String
+import java.util.Date
 
 
 suspend fun main() {
@@ -44,8 +45,15 @@ suspend fun main() {
 //    }.also (::println)
     println("----${Long.MIN_VALUE}")
     println("联调标题-2023年度骑行报告".contains("骑行报告"))
+    println("sd1----$sd  ${sd.hashCode()}")
+    repeat(Int.MAX_VALUE){}
+    println("sd2----$sd  ${sd.hashCode()}")
+    String()
 
 }
+
+val sd
+    get() = Date().time
 
 data class TT(var name: String)
 class TTT(var name: String)

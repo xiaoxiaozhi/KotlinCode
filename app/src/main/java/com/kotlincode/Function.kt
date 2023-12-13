@@ -1,5 +1,7 @@
 package com.kotlincode
 
+import kotlin.String
+
 /**
  *函数，
  * 1.所有的函数都可以当做表达式

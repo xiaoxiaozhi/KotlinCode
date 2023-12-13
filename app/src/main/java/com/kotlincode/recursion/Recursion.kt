@@ -1,15 +1,14 @@
 package com.kotlincode.recursion
 
-import android.security.keystore.KeyProperties
+import kotlin.String
 import java.math.BigInteger
-import kotlin.reflect.KProperty
 import kotlin.system.measureTimeMillis
 
 /**
  * 递归
  * 1. 尾递归调用优化：tailrec关键字 + 函数体最后一个操作是本函数
  */
-lateinit var  lateinitVar:String
+lateinit var  lateinitVar: String
 fun main() {
     //1. 见识递归
     print(sort(listOf(2, 1, 3, 4, 5)))

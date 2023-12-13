@@ -1,5 +1,6 @@
 package com.kotlincode.oop
 
+import kotlin.String
 import java.lang.RuntimeException
 
 /**

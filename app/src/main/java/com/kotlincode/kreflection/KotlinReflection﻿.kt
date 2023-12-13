@@ -1,5 +1,7 @@
 package com.kotlincode.kreflection
 
+import kotlin.String
+
 /**
  * 反射  TODO Kotlin的反射怎么跟Java不一样？？？
  * 1. 类引用

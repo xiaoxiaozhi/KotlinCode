@@ -1,15 +1,13 @@
 package com.kotlincode.myCoroutine
 
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.kotlincode.R
+import kotlin.String
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.take
-import java.io.IOException
 
 /**
  * [一篇翻译自谷歌大佬的文章](https://blog.csdn.net/cpcpcp123/article/details/112425954)

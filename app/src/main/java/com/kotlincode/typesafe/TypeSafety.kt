@@ -1,5 +1,6 @@
 package com.kotlincode.typesafe
 
+import kotlin.String
 import java.lang.RuntimeException
 import java.lang.StringBuilder
 import kotlin.math.sqrt

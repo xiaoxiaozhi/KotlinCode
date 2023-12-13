@@ -1,5 +1,7 @@
 package com.kotlincode.oop
 
+import kotlin.String
+
 /**
  * 接口
  * 1. 同java一样kotlin接口拥有 抽象方法，带有实现的方法、静态方法

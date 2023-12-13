@@ -1,5 +1,7 @@
 package com.kotlincode.collections
 
+import kotlin.String
+
 /**
  * 1.排序
  *   1.1 自然秩序：它是为 Compable 接口的继承者定义的。。当没有指定其他顺序时，自然顺序用于对它们进行排序。大多数内置类型都属于此列(整数、浮点、char、String)

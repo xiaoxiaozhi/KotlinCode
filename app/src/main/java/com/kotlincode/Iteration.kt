@@ -1,9 +1,6 @@
 package com.kotlincode
 
-import android.os.Build
-import androidx.annotation.RequiresApi
-import androidx.core.util.toRange
-import java.time.LocalDate
+import kotlin.String
 
 /**
  * 外部迭代和参数选配

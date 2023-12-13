@@ -1,5 +1,7 @@
 package com.kotlincode
 
+import kotlin.String
+
 fun main() {
     greet111("asd","sd")
     createPerson333("asd",12,23,434)

@@ -1,5 +1,7 @@
 package com.kotlincode.oop
 
+import kotlin.String
+
 /**
  * 枚举
  */

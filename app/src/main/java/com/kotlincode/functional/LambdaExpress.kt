@@ -1,6 +1,6 @@
 package com.kotlincode.functional
 
-import androidx.arch.core.util.Function
+import kotlin.String
 import java.lang.RuntimeException
 
 /**

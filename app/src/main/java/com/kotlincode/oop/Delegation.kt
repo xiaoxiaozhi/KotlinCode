@@ -1,10 +1,9 @@
 package com.kotlincode.oop
 
+import kotlin.String
 import kotlin.properties.Delegates.observable
 import kotlin.properties.Delegates.vetoable
-import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
-import kotlin.reflect.typeOf
 
 /**
  * Kotlin Vocabulary | Kotlin 委托代理 - 谷歌开发者的文章 - 知乎 https://zhuanlan.zhihu.com/p/339765203

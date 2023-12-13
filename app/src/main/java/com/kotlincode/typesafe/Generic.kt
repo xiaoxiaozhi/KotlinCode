@@ -1,5 +1,6 @@
 package com.kotlincode.typesafe
 
+import kotlin.String
 import java.io.Closeable
 import java.io.StringWriter
 

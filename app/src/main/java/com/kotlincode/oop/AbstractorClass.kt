@@ -1,5 +1,7 @@
 package com.kotlincode.oop
 
+import kotlin.String
+
 /**
  * 抽象类
  * 1. 类必须标记为abstract才能被视为抽象

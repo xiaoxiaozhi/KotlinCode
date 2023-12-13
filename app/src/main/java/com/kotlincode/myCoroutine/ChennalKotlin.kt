@@ -1,8 +1,8 @@
 package com.kotlincode.myCoroutine
 
+import kotlin.String
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.*
-import kotlinx.coroutines.flow.channelFlow
 
 /**
  * [一个英国人写的博客介绍Channel](https://kt.academy/article/cc-channel)
